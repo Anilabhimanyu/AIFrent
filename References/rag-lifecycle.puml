@@ -1,0 +1,644 @@
+@startuml RAG_Lifecycle
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E1F5FE
+  BorderColor #0277BD
+  FontSize 12
+  FontColor #263238
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F57F17
+}
+
+title End-to-End RAG (Retrieval Augmented Generation) Lifecycle
+
+start
+
+:**1. Problem Definition & Scope**
+----
+* Define RAG use case
+  (Q&A, Document Search,
+   Knowledge Base, Support Bot)
+* Identify knowledge domain
+* Define data sources
+* Set accuracy requirements
+* Define latency constraints
+* Determine scale needs
+* Plan budget and resources
+* Set success metrics
+  (Relevance, Accuracy, Coverage);
+
+:**2. Data Source Identification**
+----
+* Identify document sources:
+  - Internal documents (PDFs, Docs)
+  - Databases
+  - Knowledge bases
+  - Web content
+  - APIs
+  - Wikis
+  - Code repositories
+  - Spreadsheets
+* Assess data volume
+* Check data accessibility
+* Review data rights/licenses
+* Identify update frequency
+* Document data lineage;
+
+:**3. Document Collection & Ingestion**
+----
+* Set up data connectors
+* Extract documents:
+  - PDF extraction
+  - HTML scraping
+  - API calls
+  - Database queries
+  - File system scanning
+* Handle different formats:
+  - Text files
+  - PDFs
+  - Word documents
+  - HTML/Markdown
+  - JSON/XML
+  - Images (OCR if needed)
+* Store raw documents
+* Track document metadata
+* Version control documents;
+
+:**4. Document Preprocessing**
+----
+* Extract text content
+* Remove boilerplate
+  (Headers, footers, navigation)
+* Clean text:
+  - Remove special characters
+  - Fix encoding issues
+  - Normalize whitespace
+  - Handle line breaks
+* Remove duplicate content
+* Handle multi-language content
+* Preserve document structure
+* Extract metadata:
+  - Title, author, date
+  - Source, category
+  - Tags, keywords;
+
+:**5. Document Analysis**
+----
+* Analyze document length
+* Identify document type
+* Detect language
+* Extract entities
+  (Names, dates, locations)
+* Identify key sections
+  (Headers, paragraphs)
+* Analyze document quality
+* Check readability
+* Identify tables/figures
+* Parse document hierarchy;
+
+:**6. Text Chunking Strategy**
+----
+* Define chunking method:
+  - Fixed-size chunks
+  - Sentence-based chunks
+  - Paragraph-based chunks
+  - Semantic chunks
+  - Sliding window
+  - Recursive chunking
+* Set chunk size
+  (e.g., 256, 512, 1024 tokens)
+* Set chunk overlap
+  (e.g., 10-20% overlap)
+* Preserve context boundaries
+* Consider LLM context window
+* Balance granularity vs context;
+
+:**7. Document Chunking**
+----
+* Split documents into chunks
+* Apply overlap strategy
+* Maintain chunk metadata:
+  - Source document ID
+  - Chunk position/index
+  - Parent document info
+  - Timestamp
+* Preserve semantic coherence
+* Handle edge cases:
+  - Tables spanning chunks
+  - Code blocks
+  - Lists
+* Assign unique chunk IDs
+* Store chunk relationships;
+
+:**8. Chunk Enhancement**
+----
+* Add contextual information
+* Prepend document title/summary
+* Add section headers to chunks
+* Include document metadata
+* Generate chunk summaries
+* Add keywords/tags
+* Create hypothetical questions
+  (for HyDE - Hypothetical
+   Document Embeddings)
+* Enrich with domain info
+* Add temporal context;
+
+:**9. Embedding Model Selection**
+----
+* Choose embedding model:
+  - OpenAI (text-embedding-3)
+  - Sentence Transformers
+  - Cohere Embed
+  - Google (Vertex AI)
+  - Custom fine-tuned models
+* Consider embedding dimensions
+  (e.g., 384, 768, 1536)
+* Evaluate model quality
+* Check domain compatibility
+* Review pricing/licensing
+* Test model performance
+* Consider multilingual needs;
+
+:**10. Embedding Generation**
+----
+* Initialize embedding model
+* Process chunks in batches
+* Generate embeddings:
+  - Convert text to vectors
+  - Normalize embeddings
+  - Handle long texts
+* Store embeddings
+* Link embeddings to chunks
+* Handle embedding errors
+* Track embedding metadata
+* Calculate embedding stats
+* Monitor resource usage;
+
+:**11. Vector Database Selection**
+----
+* Choose vector database:
+  - Pinecone
+  - Weaviate
+  - Qdrant
+  - Milvus
+  - ChromaDB
+  - FAISS
+  - Elasticsearch
+  - pgvector (PostgreSQL)
+* Consider features:
+  - Similarity search algorithms
+  - Filtering capabilities
+  - Scalability
+  - Performance
+  - Cost
+  - Hybrid search support
+  - Metadata filtering;
+
+:**12. Vector Database Setup**
+----
+* Initialize database
+* Create collections/indices
+* Configure index parameters:
+  - Distance metric
+    (Cosine, Euclidean, Dot Product)
+  - Index type
+    (HNSW, IVF, Flat)
+  - Dimension size
+* Set up sharding/partitioning
+* Configure replication
+* Set up access controls
+* Optimize for query patterns
+* Configure backups;
+
+:**13. Data Indexing**
+----
+* Upload embeddings to vector DB
+* Store chunk text/metadata
+* Create searchable indices
+* Batch insert for efficiency
+* Handle indexing errors
+* Verify data integrity
+* Monitor indexing progress
+* Optimize index structure
+* Create metadata filters
+* Build hybrid indices
+  (if using keyword search);
+
+:**14. Query Processing Pipeline**
+----
+* Receive user query
+* Validate query input
+* Apply query preprocessing:
+  - Clean query text
+  - Normalize text
+  - Remove noise
+  - Handle special chars
+* Detect query intent
+* Identify query type
+  (Factual, Analytical, etc.)
+* Extract query entities
+* Log query metadata;
+
+:**15. Query Expansion & Rewriting**
+----
+* Expand query with synonyms
+* Add related terms
+* Rephrase ambiguous queries
+* Generate sub-queries
+* Handle acronyms
+* Add domain-specific terms
+* Use query templates
+* Generate multiple variants
+* Apply spelling correction;
+
+:**16. Query Embedding**
+----
+* Use same embedding model
+  (as document embeddings)
+* Generate query embedding vector
+* Normalize query vector
+* Handle multi-part queries
+* Cache query embeddings
+* Validate embedding quality;
+
+:**17. Retrieval Strategy**
+----
+* Configure retrieval parameters:
+  - Top-K results (e.g., 5-20)
+  - Similarity threshold
+  - Distance metric
+* Choose retrieval method:
+  - Dense retrieval (vectors only)
+  - Sparse retrieval (keywords)
+  - Hybrid retrieval (both)
+* Apply metadata filters:
+  - Date ranges
+  - Document types
+  - Categories
+  - Access permissions
+* Configure reranking;
+
+:**18. Vector Search Execution**
+----
+* Perform similarity search
+* Query vector database
+* Apply distance calculations
+* Retrieve top-K candidates
+* Get similarity scores
+* Fetch associated metadata
+* Apply filtering
+* Handle search errors
+* Track search latency
+* Log search results;
+
+:**19. Reranking (Optional)**
+----
+* Apply reranking models:
+  - Cross-encoders
+  - Cohere Rerank
+  - Custom scoring
+* Calculate relevance scores
+* Consider recency
+* Apply business rules
+* Boost by metadata
+* Combine multiple signals
+* Reorder results
+* Filter low-quality results;
+
+:**20. Context Assembly**
+----
+* Retrieve chunk texts
+* Order by relevance score
+* Deduplicate similar chunks
+* Group by source document
+* Format retrieved context
+* Add source attribution
+* Limit context length
+  (fit LLM context window)
+* Add metadata (title, source)
+* Structure context clearly
+* Preserve context hierarchy;
+
+:**21. Context Quality Check**
+----
+* Verify context relevance
+* Check for contradictions
+* Validate information freshness
+* Ensure sufficient coverage
+* Check context diversity
+* Filter irrelevant chunks
+* Validate source quality
+* Assess completeness;
+
+if (Context\nQuality\nSufficient?) then (No)
+  :**Fallback Strategy**
+  ----
+  * Expand search parameters
+  * Try alternative queries
+  * Use broader filters
+  * Increase top-K
+  * Return partial results
+  * Notify user of limitations;
+else (Yes)
+endif
+
+:**22. Prompt Construction**
+----
+* Design RAG prompt template
+* Add system instructions
+* Insert retrieved context:
+  - Format context clearly
+  - Add source citations
+  - Number references
+* Add user query
+* Include guidelines:
+  - Use only provided context
+  - Cite sources
+  - Admit unknown info
+* Set output format
+* Add constraints/rules
+* Optimize prompt length;
+
+:**23. LLM Integration**
+----
+* Select LLM:
+  - GPT-4, Claude, Gemini
+  - Open-source (Llama, Mistral)
+* Configure LLM parameters:
+  - Temperature (0.0-0.3 for factual)
+  - Max tokens
+  - Top-p
+  - Stop sequences
+* Set up API connection
+* Handle authentication
+* Configure timeout/retries;
+
+:**24. LLM Response Generation**
+----
+* Send prompt to LLM
+* Include retrieved context
+* Handle streaming (optional)
+* Monitor token usage:
+  - Context tokens
+  - Query tokens
+  - Response tokens
+* Track generation time
+* Handle LLM errors
+* Implement fallbacks
+* Log API calls;
+
+if (LLM Request\nSuccessful?) then (No)
+  :Handle Error;
+  stop
+else (Yes)
+endif
+
+:**25. Response Post-Processing**
+----
+* Extract LLM response
+* Parse citations/references
+* Format response:
+  - Add markdown
+  - Structure sections
+  - Format code blocks
+* Extract source links
+* Validate response format
+* Apply text cleanup
+* Check response length
+* Add metadata;
+
+:**26. Citation & Source Linking**
+----
+* Map citations to sources
+* Add source URLs/links
+* Include document titles
+* Add page numbers/sections
+* Format references
+* Create footnotes/endnotes
+* Validate citation accuracy
+* Provide access to sources;
+
+:**27. Response Validation**
+----
+* Check factual accuracy
+* Verify citations match sources
+* Detect hallucinations
+* Compare with retrieved context
+* Validate logical consistency
+* Check for contradictions
+* Assess answer completeness
+* Apply content moderation;
+
+if (Response\nValid?) then (No)
+  :**Regenerate Response**
+  ----
+  * Adjust prompt
+  * Modify context
+  * Change LLM parameters
+  * Try fallback strategy;
+  detach
+else (Yes)
+endif
+
+:**28. Response Delivery**
+----
+* Format final response
+* Add source references
+* Include confidence score
+* Add metadata:
+  - Response time
+  - Sources used
+  - Number of chunks
+* Return to user
+* Support follow-up queries
+* Enable feedback collection;
+
+:**29. User Feedback Collection**
+----
+* Collect explicit feedback:
+  - Thumbs up/down
+  - Star ratings
+  - Comments
+* Track implicit signals:
+  - Follow-up queries
+  - Time on page
+  - Source clicks
+* Log feedback data
+* Associate with query/response
+* Store user interactions;
+
+:**30. Response Evaluation**
+----
+* Measure retrieval quality:
+  - Precision@K
+  - Recall@K
+  - MRR (Mean Reciprocal Rank)
+  - NDCG (Normalized DCG)
+* Measure generation quality:
+  - Faithfulness
+  - Answer relevance
+  - Context precision
+  - Context recall
+* Track user satisfaction
+* Monitor answer accuracy
+* Analyze failure cases;
+
+:**31. Performance Monitoring**
+----
+* Track system metrics:
+  - Query latency (total)
+  - Retrieval time
+  - LLM generation time
+  - End-to-end latency
+* Monitor throughput
+* Track error rates
+* Monitor resource usage:
+  - Vector DB performance
+  - LLM API usage
+  - Cache hit rates
+* Set up alerts
+* Track cost per query;
+
+:**32. Quality Analysis**
+----
+* Review low-rated responses
+* Analyze retrieval failures
+* Identify knowledge gaps
+* Check embedding quality
+* Review query patterns
+* Analyze edge cases
+* Identify common errors
+* Monitor hallucinations
+* Track context relevance;
+
+:**33. Knowledge Base Updates**
+----
+* Identify outdated content
+* Add new documents
+* Update existing documents
+* Remove obsolete content
+* Track document versions
+* Handle incremental updates
+* Maintain consistency
+* Update metadata;
+
+if (New Documents\nAvailable?) then (Yes)
+  :**Process New Documents**
+  ----
+  * Ingest new content
+  * Generate embeddings
+  * Update vector database
+  * Refresh indices
+  * Validate updates
+  * Test retrieval quality;
+  
+else (No)
+endif
+
+:**34. System Optimization**
+----
+* Optimize chunking strategy
+* Fine-tune embedding models
+* Improve retrieval parameters
+* Optimize reranking
+* Refine prompts
+* Adjust LLM parameters
+* Optimize vector DB config
+* Improve caching
+* Reduce latency
+* Control costs;
+
+:**35. Continuous Improvement**
+----
+* Analyze usage patterns
+* Update prompt templates
+* Improve data quality
+* Add new data sources
+* Enhance preprocessing
+* Optimize infrastructure
+* Update evaluation metrics
+* Implement A/B testing
+* Review cost efficiency
+* Plan feature enhancements;
+
+:Maintain RAG System;
+
+stop
+
+legend right
+  |= **RAG Lifecycle Phases** |
+  | **Phase 1: Planning & Setup** |
+  | - Problem Definition |
+  | - Data Source Identification |
+  | **Phase 2: Data Preparation** |
+  | - Document Collection |
+  | - Preprocessing |
+  | - Document Analysis |
+  | **Phase 3: Chunking & Embedding** |
+  | - Chunking Strategy |
+  | - Chunk Enhancement |
+  | - Embedding Model Selection |
+  | - Embedding Generation |
+  | **Phase 4: Indexing** |
+  | - Vector DB Selection |
+  | - Database Setup |
+  | - Data Indexing |
+  | **Phase 5: Query Processing** |
+  | - Query Processing |
+  | - Query Expansion |
+  | - Query Embedding |
+  | **Phase 6: Retrieval** |
+  | - Retrieval Strategy |
+  | - Vector Search |
+  | - Reranking |
+  | - Context Assembly |
+  | **Phase 7: Generation** |
+  | - Prompt Construction |
+  | - LLM Integration |
+  | - Response Generation |
+  | **Phase 8: Validation & Delivery** |
+  | - Response Processing |
+  | - Citation Linking |
+  | - Response Validation |
+  | - Response Delivery |
+  | **Phase 9: Operations** |
+  | - Feedback Collection |
+  | - Evaluation |
+  | - Monitoring |
+  | - Quality Analysis |
+  | **Phase 10: Maintenance** |
+  | - Knowledge Base Updates |
+  | - System Optimization |
+  | - Continuous Improvement |
+endlegend
+
+note right
+  **RAG Components:**
+  * Documents → Chunks
+  * Chunks → Embeddings (Vectors)
+  * Query → Query Embedding
+  * Vector Search (Similarity)
+  * Retrieved Context + Query
+  * LLM → Grounded Response
+  * Citations & Sources
+  
+  **Key Techniques:**
+  * Semantic chunking
+  * Dense retrieval (vectors)
+  * Hybrid search (vector + keyword)
+  * Reranking
+  * Prompt engineering
+  * Citation extraction
+  
+  **Critical Metrics:**
+  * Retrieval accuracy
+  * Answer faithfulness
+  * Citation accuracy
+  * Response latency
+  * User satisfaction
+  * Cost per query
+end note
+
+@enduml

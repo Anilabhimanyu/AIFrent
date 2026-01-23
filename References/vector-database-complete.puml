@@ -1,0 +1,776 @@
+@startuml Vector_Database_Complete
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #FFF8E1
+  BorderColor #F57C00
+  FontSize 12
+  FontColor #263238
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F57F17
+}
+
+title Vector Database - Complete Architecture & Operations
+
+start
+
+partition "**VECTOR DATABASE TYPES & CATEGORIES**" {
+
+:**Vector Database Categories**
+----
+**1. PURPOSE-BUILT VECTOR DATABASES**
+* Designed specifically for vectors
+* Optimized for similarity search
+* Examples:
+  - Pinecone (Cloud, Managed)
+  - Weaviate (Open-source, Hybrid)
+  - Qdrant (Open-source, Rust)
+  - Milvus (Open-source, Distributed)
+  - ChromaDB (Open-source, Python)
+  - Vespa (Open-source, Enterprise)
+
+**2. VECTOR SEARCH LIBRARIES**
+* In-memory/local operations
+* No server required
+* Examples:
+  - FAISS (Facebook AI, C++)
+  - Annoy (Spotify, C++)
+  - HNSW (Hierarchical NSW)
+  - ScaNN (Google)
+  - NGT (Yahoo Japan)
+
+**3. EXTENDED DATABASES**
+* Traditional DB + vector support
+* Multi-modal capabilities
+* Examples:
+  - PostgreSQL + pgvector
+  - Elasticsearch + Vector Search
+  - Redis + RediSearch
+  - MongoDB Atlas Vector Search
+  - Cassandra + SAI
+  - Neo4j Vector Index
+
+**4. CLOUD-MANAGED SERVICES**
+* Fully managed solutions
+* Examples:
+  - Pinecone
+  - Azure AI Search
+  - AWS OpenSearch
+  - Google Vertex AI Matching Engine
+  - Cloudflare Vectorize;
+
+:**Key Characteristics Comparison**
+----
+**Performance:**
+* Pinecone: High throughput, low latency
+* Weaviate: Balanced, hybrid search
+* Qdrant: High performance, Rust-based
+* Milvus: Distributed, scalable
+* FAISS: Fastest in-memory
+* pgvector: Good for existing Postgres
+
+**Scalability:**
+* Milvus: Billions of vectors
+* Pinecone: Auto-scaling
+* Weaviate: Horizontal scaling
+* Qdrant: Distributed architecture
+* FAISS: Single-machine limit
+* ChromaDB: Moderate scale
+
+**Features:**
+* Weaviate: Hybrid search, GraphQL
+* Qdrant: Filtering, payload
+* Milvus: GPU support, partitions
+* pgvector: SQL integration
+* Elasticsearch: Full-text + vector
+
+**Open-Source:**
+* Open: Weaviate, Qdrant, Milvus,
+  ChromaDB, FAISS, pgvector
+* Closed: Pinecone
+* Hybrid: Elasticsearch, MongoDB;
+
+}
+
+partition "**VECTOR STORAGE ARCHITECTURE**" {
+
+:**Vector Data Model**
+----
+**Core Components:**
+
+**1. VECTOR (Embedding)**
+* Numerical representation
+* Fixed dimensions: 128, 384, 768, 1536, etc.
+* Data type: float32, float16, int8
+* Example: (0.23, -0.45, 0.67, ...)
+* Memory: dim × bytes per value
+  - 768 dim × 4 bytes = 3KB per vector
+
+**2. VECTOR ID**
+* Unique identifier
+* UUID or integer
+* Links vector to original data
+* Index key
+
+**3. METADATA (Payload)**
+* Additional attributes
+* Structured data:
+  - Document ID
+  - Title, author, date
+  - Categories, tags
+  - Custom fields (JSON)
+* Used for filtering
+* Enables hybrid search
+
+**4. ORIGINAL CONTENT (Optional)**
+* Source text/data
+* May be stored separately
+* Retrieved after similarity match;
+
+:**Storage Structure**
+----
+**Physical Storage:**
+
+**Embedding Storage:**
+* Dense vector arrays
+* Optimized memory layout
+* Column-oriented storage
+* Compression options:
+  - Quantization (reduce precision)
+  - Product Quantization (PQ)
+  - Scalar Quantization (SQ)
+  - Binary Quantization
+
+**Metadata Storage:**
+* Key-value store
+* Inverted indices (for filtering)
+* Document store (JSON/BSON)
+* SQL tables (for relational DBs)
+
+**Index Structure:**
+* Specialized data structures
+* Trade-off: speed vs accuracy vs memory
+* Multiple index types per database;
+
+:**Data Organization**
+----
+**Collections/Tables:**
+* Group related vectors
+* Separate namespaces
+* Schema definition
+* Per-collection configuration
+
+**Partitions/Shards:**
+* Horizontal splitting
+* Based on key/hash
+* Enables distributed storage
+* Parallel processing
+
+**Segments:**
+* Data chunks
+* Immutable blocks
+* Background compaction
+* Version control;
+
+}
+
+partition "**INDEXING ALGORITHMS & STRUCTURES**" {
+
+:**Index Types**
+----
+**1. FLAT INDEX (Brute Force)**
+* Exhaustive search
+* Compare with all vectors
+* 100% accuracy (recall)
+* Time: O(n × d)
+* Use: Small datasets (< 10K)
+* No preprocessing needed
+* High latency for large scale
+
+**2. IVF (Inverted File Index)**
+* Clustering-based
+* Divide into clusters (centroids)
+* Search nearest clusters only
+* Steps:
+  1. k-means clustering (build)
+  2. Query: find nearest centroids
+  3. Search within clusters
+* Parameters:
+  - nlist: number of clusters
+  - nprobe: clusters to search
+* Trade-off: speed vs accuracy
+* Used by: FAISS, Milvus
+
+**3. HNSW (Hierarchical NSW)**
+* Graph-based algorithm
+* Multi-layer graph structure
+* Greedy search through layers
+* High accuracy + fast search
+* Parameters:
+  - M: max connections per node
+  - efConstruction: build quality
+  - efSearch: search quality
+* Memory intensive
+* Used by: Qdrant, Weaviate, FAISS
+
+**4. LSH (Locality-Sensitive Hashing)**
+* Hash similar vectors to same buckets
+* Probabilistic algorithm
+* Fast but lower accuracy
+* Good for high dimensions
+* Used by: older systems
+
+**5. ANNOY (Approximate Nearest)**
+* Tree-based (binary trees)
+* Random projection trees
+* Multiple trees for accuracy
+* Memory-mapped files
+* Used by: Spotify
+* Read-heavy optimization
+
+**6. PQ (Product Quantization)**
+* Vector compression
+* Divide vector into sub-vectors
+* Quantize each sub-vector
+* Significant memory reduction
+* Small accuracy loss
+* Used by: FAISS, Milvus
+
+**7. SCANN (Scalable Nearest)**
+* Google's algorithm
+* Learned quantization
+* Two-phase search
+* High performance
+* Open-source library;
+
+:**Index Selection Criteria**
+----
+**Choose based on:**
+
+**Dataset Size:**
+* < 10K: Flat index
+* 10K - 1M: IVF or HNSW
+* 1M - 100M: HNSW + PQ
+* 100M+: Distributed IVF + PQ
+
+**Query Speed Requirements:**
+* Real-time: HNSW
+* Batch: IVF
+* Moderate: IVF + filtering
+
+**Accuracy Requirements:**
+* High (>99%): HNSW, Flat
+* Medium (95-99%): IVF
+* Lower (<95%): LSH
+
+**Memory Constraints:**
+* Limited: PQ, SQ, IVF
+* Abundant: HNSW, Flat
+
+**Update Frequency:**
+* High updates: HNSW
+* Mostly reads: ANNOY, IVF
+* Append-only: IVF;
+
+}
+
+partition "**DISTANCE METRICS & SIMILARITY**" {
+
+:**Distance Metric Types**
+----
+**1. COSINE SIMILARITY**
+* Measures angle between vectors
+* Range: -1 to 1 (inclusive) or 0 to 1
+* Formula: cos(θ) = (A·B) / (||A|| ||B||)
+* Distance: 1 - cosine_similarity
+* Use cases:
+  - Text embeddings (most common)
+  - Semantic similarity
+  - Direction matters, not magnitude
+* Normalized vectors
+* Default for most LLM embeddings
+
+**2. EUCLIDEAN DISTANCE (L2)**
+* Straight-line distance
+* Formula: sqrt(Σ(ai - bi)²)
+* Range: 0 to infinity
+* Use cases:
+  - Image embeddings
+  - Spatial data
+  - When magnitude matters
+* Sensitive to scale
+* Most intuitive metric
+
+**3. DOT PRODUCT (Inner Product)**
+* Sum of element-wise products
+* Formula: Σ(ai × bi)
+* Range: negative infinity to positive infinity
+* Higher = more similar
+* Use cases:
+  - Normalized embeddings
+  - Fast computation
+  - Neural network outputs
+* Magnitude and direction matter
+* Faster than cosine (no division)
+
+**4. MANHATTAN DISTANCE (L1)**
+* Sum of absolute differences
+* Formula: Σ|ai - bi|
+* Range: 0 to infinity
+* Use cases:
+  - Grid-like data
+  - Sparse vectors
+  - Robust to outliers
+* Less common for embeddings
+
+**5. HAMMING DISTANCE**
+* Count of differing bits
+* For binary vectors
+* Very fast computation
+* Use cases:
+  - Binary embeddings
+  - Hashing methods
+  - Large-scale search
+* Lower memory footprint;
+
+:**Metric Selection Guide**
+----
+**Cosine Similarity:**
+✓ Text embeddings (OpenAI, Cohere)
+✓ Semantic search
+✓ Document similarity
+✓ Pre-normalized vectors
+
+**Euclidean (L2):**
+✓ Image embeddings
+✓ Face recognition
+✓ Object detection
+✓ When scale matters
+
+**Dot Product:**
+✓ Fast similarity computation
+✓ Already normalized vectors
+✓ Neural network embeddings
+✓ Real-time applications
+
+**Performance Comparison:**
+* Dot Product: Fastest
+* Cosine: Fast (needs normalization)
+* Euclidean: Moderate (sqrt operation)
+* Manhattan: Moderate;
+
+}
+
+partition "**VECTOR INSERTION PROCESS**" {
+
+:**1. Prepare Vectors**
+----
+* Generate embeddings:
+  - Use embedding model
+  - Text → Vector
+  - Image → Vector
+  - Audio → Vector
+* Validate dimensions
+* Normalize if needed
+  (for cosine similarity)
+* Prepare metadata
+* Assign IDs;
+
+:**2. Batch Preparation**
+----
+* Group vectors in batches:
+  - Typical: 100-1000 per batch
+  - Balance throughput vs memory
+* Structure data:
+  - Vector arrays
+  - ID arrays
+  - Metadata objects
+* Validate data types
+* Check batch limits;
+
+:**3. Insert/Upsert Operation**
+----
+**Insert Methods:**
+
+**Single Insert:**
+* One vector at a time
+* Simple but slow
+* Use for real-time updates
+
+**Batch Insert:**
+* Multiple vectors together
+* Much faster (10-100x)
+* Recommended for bulk loads
+* Parallel processing
+
+**Upsert:**
+* Update if exists, insert if not
+* Based on ID
+* Maintains consistency
+
+**Actions:**
+* Serialize vectors
+* Write to storage
+* Update indices
+* Refresh metadata;
+
+:**4. Index Building**
+----
+**Online Indexing:**
+* Update index immediately
+* Higher latency per insert
+* Always queryable
+* Use: Real-time systems
+
+**Offline Indexing:**
+* Build index after insertions
+* Lower insert latency
+* Temporary unavailability
+* Use: Batch processing
+
+**Incremental Indexing:**
+* Periodic index updates
+* Balance both approaches
+* Background processing
+
+**Actions:**
+* Cluster assignment (IVF)
+* Graph construction (HNSW)
+* Tree building (ANNOY)
+* Quantization (PQ);
+
+:**5. Persistence**
+----
+* Write to disk
+* Transaction logs
+* Replication (if distributed)
+* Snapshot creation
+* Backup copies
+* Verify integrity;
+
+}
+
+partition "**VECTOR SEARCH & RETRIEVAL**" {
+
+:**1. Query Preparation**
+----
+* Receive query text/data
+* Generate query embedding:
+  - MUST use same model
+  - Same dimensions
+  - Same normalization
+* Validate query vector
+* Parse search parameters:
+  - top_k (e.g., 5-20)
+  - Filters (metadata)
+  - Score threshold
+  - Distance metric;
+
+:**2. Query Routing**
+----
+**Distributed Systems:**
+* Identify target shards/partitions
+* Route based on:
+  - Hash-based routing
+  - Metadata filters
+  - Load balancing
+* Parallel query execution
+* Aggregation of results;
+
+:**3. Index Search**
+----
+**Algorithm Execution:**
+
+**HNSW Search:**
+* Start at top layer
+* Greedy navigation
+* Descend through layers
+* Find nearest neighbors
+* Return candidates
+
+**IVF Search:**
+* Find nearest centroids (nprobe)
+* Search within clusters
+* Aggregate results
+* Sort by distance
+
+**Flat Search:**
+* Compare with all vectors
+* Calculate distances
+* Keep top-k
+* Exact results
+
+**Complexity:**
+* HNSW: O(log n)
+* IVF: O(nprobe × n/nlist)
+* Flat: O(n);
+
+:**4. Distance Calculation**
+----
+* Calculate similarity/distance:
+  - Query vector vs candidates
+  - Apply distance metric
+  - Use SIMD/GPU acceleration
+* Optimize calculations:
+  - Pre-computed norms
+  - Quantized comparisons
+  - Approximate distances
+* Sort by score;
+
+:**5. Metadata Filtering**
+----
+**Pre-filtering:**
+* Filter before vector search
+* Reduce search space
+* Faster but may miss results
+
+**Post-filtering:**
+* Filter after vector search
+* More accurate
+* May need more candidates
+
+**Hybrid Filtering:**
+* Combine both approaches
+* Balance accuracy and speed
+
+**Filter Types:**
+* Exact match (category = "X")
+* Range (date > "2024-01-01")
+* Array contains (tags contains "AI")
+* Geo-location (distance < 10km)
+* Composite (multiple conditions);
+
+:**6. Re-ranking (Optional)**
+----
+* Apply advanced scoring:
+  - Combine vector + keyword scores
+  - Weighted ranking
+  - Cross-encoder models
+  - Business logic scoring
+* Adjust positions
+* Apply diversity filters
+* Remove duplicates;
+
+:**7. Result Compilation**
+----
+* Collect top-k results:
+  - Vector IDs
+  - Similarity scores
+  - Distances
+* Fetch metadata
+* Retrieve original content
+  (if requested)
+* Format response:
+  - ID, score, metadata
+  - Content (optional)
+* Sort final results;
+
+:**8. Response Return**
+----
+* Package results
+* Return to client:
+  - Result array
+  - Scores/distances
+  - Metadata
+  - Query metadata
+    (time taken, vectors scanned)
+* Log query
+* Update metrics;
+
+}
+
+partition "**OPTIMIZATION & PERFORMANCE**" {
+
+:**Performance Tuning**
+----
+**Index Optimization:**
+* Tune index parameters:
+  - HNSW: M, efConstruction, efSearch
+  - IVF: nlist, nprobe
+* Balance accuracy vs speed
+* A/B test configurations
+* Benchmark regularly
+
+**Quantization:**
+* Reduce vector precision:
+  - Float32 → Float16 (2x compression)
+  - Float32 → Int8 (4x compression)
+* Product Quantization:
+  - 8-32x compression
+  - Small accuracy loss
+* Binary quantization:
+  - 32x compression
+  - Faster computation
+
+**Caching:**
+* Cache frequent queries
+* Cache query embeddings
+* Cache hot vectors
+* LRU/LFU policies
+* Distributed caching
+
+**Hardware Optimization:**
+* GPU acceleration
+* SIMD instructions
+* Multi-threading
+* Memory-mapped files
+* NVMe SSDs for storage;
+
+:**Benchmark Metrics**
+----
+**Accuracy Metrics:**
+* Recall@k: % of true neighbors found
+* Precision@k: % relevant in results
+* nDCG: Ranking quality
+* Mean Average Precision (MAP)
+
+**Performance Metrics:**
+* QPS (Queries Per Second)
+* Latency: p50, p95, p99
+* Throughput (vectors/sec)
+* Index build time
+* Memory usage
+* Disk usage
+
+**Common Benchmarks:**
+* ANN-Benchmarks.com
+* Datasets: SIFT, GIST, Deep1B
+* Metrics: Recall vs QPS curves
+
+**Typical Performance:**
+* HNSW: 10K-100K QPS
+* IVF+PQ: 1K-10K QPS
+* Flat: 100-1K QPS
+* Latency: 1-50ms;
+
+}
+
+partition "**ADVANCED FEATURES**" {
+
+:**Hybrid Search**
+----
+* Combine vector + keyword search:
+  - Dense retrieval (vectors)
+  - Sparse retrieval (BM25, TF-IDF)
+* Fusion strategies:
+  - Reciprocal Rank Fusion (RRF)
+  - Weighted combination
+  - Score normalization
+* Best for: Document search
+* Higher accuracy
+* Supported: Weaviate, Elasticsearch;
+
+:**Filtered Search**
+----
+* Apply metadata filters
+* Efficient filtering methods:
+  - Inverted indices
+  - Bitmap indices
+  - Hash tables
+* Reduce search space
+* Maintain performance;
+
+:**Multi-vector Search**
+----
+* Multiple vectors per document:
+  - Different aspects
+  - Multi-modal (text + image)
+  - Chunks of same document
+* Late interaction models
+* ColBERT-style search;
+
+:**Updates & Deletes**
+----
+* Update vectors:
+  - Upsert by ID
+  - Version control
+  - Atomic operations
+* Delete vectors:
+  - Mark as deleted (soft delete)
+  - Remove from index
+  - Garbage collection
+  - Compaction
+* Maintain consistency;
+
+:**Replication & HA**
+----
+* Data replication:
+  - Master-replica
+  - Multi-master
+  - Quorum-based
+* Failover mechanisms
+* Load balancing
+* Geographic distribution
+* Consistency models:
+  - Strong consistency
+  - Eventual consistency;
+
+}
+
+:**Vector Database Ready**;
+
+stop
+
+legend right
+  |= **Vector DB Comparison** |
+  |**Database**|**Type**|**License**|**Best For**|
+  | Pinecone | Cloud | Proprietary | Production, Managed |
+  | Weaviate | Hybrid | Open-source | Hybrid search |
+  | Qdrant | Purpose-built | Open-source | High performance |
+  | Milvus | Distributed | Open-source | Large scale |
+  | ChromaDB | Embedded | Open-source | Development |
+  | FAISS | Library | Open-source | In-memory, Fast |
+  | pgvector | Extension | Open-source | PostgreSQL users |
+  | Elasticsearch | Extended | Open-source | Full-text + vector |
+  
+  |= **Distance Metrics** |
+  | Cosine | Text, Semantic |
+  | Euclidean | Images, Spatial |
+  | Dot Product | Fast, Normalized |
+  | Manhattan | Sparse, Grid data |
+  | Hamming | Binary, Fast |
+  
+  |= **Index Algorithms** |
+  | HNSW | High accuracy, Fast |
+  | IVF | Large scale, Moderate |
+  | Flat | Small data, Exact |
+  | PQ | Compression, Memory |
+  | ANNOY | Read-heavy, Trees |
+endlegend
+
+note right
+  **Key Considerations:**
+  
+  **Choosing Vector DB:**
+  * Scale: Dataset size
+  * Speed: QPS requirements
+  * Accuracy: Recall needs
+  * Features: Filtering, hybrid
+  * Cost: Cloud vs self-hosted
+  * Integration: Existing stack
+  
+  **Performance Tips:**
+  * Use batching for inserts
+  * Normalize vectors for cosine
+  * Tune index parameters
+  * Apply quantization
+  * Use appropriate metric
+  * Enable filtering
+  * Monitor recall vs speed
+  
+  **Memory Estimation:**
+  * Vectors: n × d × 4 bytes
+  * HNSW: 2-3x vector size
+  * IVF: 1-1.5x vector size
+  * PQ: 0.1-0.3x vector size
+  
+  **Common Issues:**
+  * Dimension mismatch
+  * Wrong distance metric
+  * Poor index tuning
+  * Insufficient memory
+  * Slow filtering
+  * Cold start latency
+end note
+
+@enduml

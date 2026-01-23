@@ -1,0 +1,877 @@
+@startuml Guardrails_And_Memory_Architecture
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E8EAF6
+  BorderColor #3F51B5
+  FontSize 12
+  FontColor #263238
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F57F17
+}
+
+title AI Guardrails & Memory Architecture (Complete System)
+
+start
+
+partition "**MEMORY ARCHITECTURE OVERVIEW**" {
+
+:**Memory System Initialization**
+----
+**Memory Types:**
+
+**1. SHORT-TERM MEMORY (Working Memory)**
+* Current conversation context
+* Active task variables
+* Recent observations
+* Temporary computations
+* Session state
+* Lifespan: Current session only
+* Capacity: Limited (e.g., last 10-20 turns)
+* Storage: In-memory cache, Redis
+* Cleared after session ends
+
+**2. LONG-TERM MEMORY**
+Subtypes:
+  
+  **2A. Semantic Memory**
+  - Factual knowledge
+  - Domain expertise
+  - Learned concepts
+  - General world knowledge
+  - Lifespan: Persistent
+  - Storage: Vector DB, Knowledge Graph
+  
+  **2B. Procedural Memory**
+  - How-to knowledge
+  - Skill execution
+  - Process workflows
+  - Action patterns
+  - Lifespan: Persistent
+  - Storage: Structured DB
+  
+  **2C. User Profile Memory**
+  - User preferences
+  - Past interactions
+  - Behavioral patterns
+  - Personalization data
+  - Lifespan: User lifetime
+  - Storage: User database
+
+**3. EPISODIC MEMORY**
+* Past conversation episodes
+* Historical task executions
+* Experience records
+* Success/failure cases
+* Timestamped events
+* Context-rich memories
+* Lifespan: Long-term archive
+* Storage: Vector DB, SQL
+* Retrieval: By similarity, time, tags
+
+**4. BUFFER MEMORY**
+* Immediate input/output buffer
+* Pre-processing queue
+* Post-processing cache
+* Lifespan: Milliseconds to seconds
+* Storage: RAM, Message queues
+
+**5. EXTERNAL MEMORY**
+* Documents (RAG)
+* Knowledge bases
+* Databases
+* File systems
+* APIs
+* Web content
+* Lifespan: External source dependent
+* Access: On-demand retrieval;
+
+}
+
+partition "**INPUT GUARDRAILS**" {
+
+:**1. Input Reception**
+----
+* Receive user input
+* Capture raw input
+* Record metadata:
+  - User ID
+  - Timestamp
+  - Channel
+  - Session ID
+* Initial logging;
+
+:**2. Input Validation**
+----
+* Check input format
+* Validate encoding (UTF-8)
+* Check input length:
+  - Minimum length
+  - Maximum length (e.g., 5000 chars)
+* Validate data types
+* Check for null/empty
+* Verify structure;
+
+if (Input Valid?) then (No)
+  :Reject Input;
+  :Return Validation Error;
+  stop
+else (Yes)
+endif
+
+:**3. Content Safety Check**
+----
+**Safety Filters:**
+
+* **Toxic Content Detection**
+  - Hate speech
+  - Harassment
+  - Bullying
+  - Offensive language
+  - Use: Perspective API, Azure Content Safety
+
+* **Violence Detection**
+  - Violent threats
+  - Self-harm content
+  - Graphic violence
+
+* **Sexual Content Detection**
+  - Explicit content
+  - Sexual harassment
+  - Child safety (CSAM)
+
+* **Profanity Filter**
+  - Profane language
+  - Slurs
+  - Inappropriate terms
+
+* Calculate toxicity score (0-1)
+* Apply thresholds;
+
+if (Content Safe?) then (No)
+  :**Block Unsafe Input**
+  ----
+  * Log violation
+  * Increment user violation count
+  * Send warning message
+  * Return safe error response;
+  
+  stop
+else (Yes)
+endif
+
+:**4. PII Detection & Masking**
+----
+**Detect Personal Information:**
+
+* **Identity Information**
+  - Full names
+  - Social Security Numbers
+  - Driver's license numbers
+  - Passport numbers
+
+* **Contact Information**
+  - Email addresses
+  - Phone numbers
+  - Physical addresses
+  - IP addresses
+
+* **Financial Information**
+  - Credit card numbers
+  - Bank account numbers
+  - Cryptocurrency addresses
+
+* **Health Information (PHI)**
+  - Medical record numbers
+  - Health conditions
+  - Medications
+
+* **Sensitive IDs**
+  - Employee IDs
+  - Student IDs
+  - Tax IDs
+
+**Actions:**
+* Detect using regex/NER
+* Mask detected PII with redaction
+* Log PII detection (not content)
+* Store mapping (if needed for unmask)
+* Apply data minimization;
+
+:**5. Prompt Injection Detection**
+----
+**Detect Attack Patterns:**
+
+* **Jailbreak Attempts**
+  - "Ignore previous instructions"
+  - "You are now DAN (Do Anything Now)"
+  - Role-playing attacks
+  - System prompt overrides
+
+* **Instruction Leakage**
+  - Attempts to reveal system prompt
+  - "What are your instructions?"
+  - "Repeat your initial prompt"
+
+* **Delimiter Attacks**
+  - Special character injection
+  - XML/JSON injection
+  - Unicode exploits
+
+* **Context Manipulation**
+  - Fake conversation history
+  - Authority impersonation
+
+**Detection Methods:**
+* Pattern matching
+* ML-based classifiers
+* Perplexity checks
+* Embedding anomaly detection
+
+**Actions:**
+* Score injection risk (0-1)
+* Block high-risk inputs
+* Sanitize suspicious content
+* Log attack attempts;
+
+if (Injection\nDetected?) then (Yes)
+  :Block Malicious Input;
+  :Log Security Incident;
+  stop
+else (No)
+endif
+
+:**6. Input Sanitization**
+----
+* Remove dangerous patterns
+* Escape special characters
+* Normalize text
+* Strip HTML/script tags
+* Clean control characters
+* Apply input encoding
+* Validate against schema
+* Prepare for processing;
+
+:**7. Rate Limiting Check**
+----
+* Check user request rate
+* Per-user limits:
+  - Requests per minute
+  - Requests per hour
+  - Requests per day
+* Per-IP limits
+* Check token usage quotas
+* Verify API tier limits;
+
+if (Rate Limit\nExceeded?) then (Yes)
+  :Return 429 Error;
+  :Apply Backoff;
+  stop
+else (No)
+endif
+
+:**8. Authorization & Access Control**
+----
+* Verify user authentication
+* Check permissions:
+  - Feature access
+  - Data access
+  - API endpoints
+  - Resource limits
+* Validate API keys
+* Check subscription tier
+* Verify RBAC (Role-Based Access)
+* Apply data filtering
+* Enforce least privilege;
+
+if (Authorized?) then (No)
+  :Return 403 Forbidden;
+  stop
+else (Yes)
+endif
+
+:**9. Business Rules Validation**
+----
+* Check domain-specific rules:
+  - Allowed topics
+  - Restricted keywords
+  - Category filters
+  - Age restrictions
+  - Geographic restrictions
+* Apply content policies
+* Verify compliance requirements
+* Check custom constraints
+* Validate use case alignment;
+
+:**Input Approved for Processing**;
+
+}
+
+partition "**MEMORY OPERATIONS**" {
+
+:**10. Memory Retrieval**
+----
+**Retrieve from Memory Systems:**
+
+* **Short-term Memory:**
+  - Get current session context
+  - Retrieve recent conversation
+  - Load working variables
+
+* **Long-term Memory:**
+  - Query user profile
+  - Retrieve user preferences
+  - Get learned patterns
+  - Access procedural knowledge
+
+* **Episodic Memory:**
+  - Search similar past interactions
+  - Find relevant experiences
+  - Retrieve by timestamp/tags
+
+* **External Memory (RAG):**
+  - Query vector database
+  - Search knowledge base
+  - Retrieve documents
+
+* Combine memory sources
+* Resolve conflicts
+* Apply recency weighting
+* Limit memory size;
+
+:**11. Memory Context Assembly**
+----
+* Integrate memory into context:
+  - Conversation history
+  - User profile data
+  - Relevant past episodes
+  - Retrieved knowledge
+* Format memory context
+* Apply memory priority
+* Manage context window
+* Preserve important info;
+
+}
+
+partition "**PROCESSING & EXECUTION GUARDRAILS**" {
+
+:**12. Processing with Guardrails**
+----
+**During Execution Monitor:**
+
+* **Resource Monitoring**
+  - CPU usage
+  - Memory consumption
+  - API call limits
+  - Execution time
+  - Token budget
+
+* **Behavioral Monitoring**
+  - Tool usage patterns
+  - Data access patterns
+  - External API calls
+  - File operations
+
+* **Security Monitoring**
+  - Suspicious activities
+  - Unauthorized access attempts
+  - Data exfiltration
+  - Privilege escalation
+
+* Set execution timeout
+* Monitor infinite loops
+* Track resource consumption
+* Apply circuit breakers;
+
+:**13. Tool & Action Guardrails**
+----
+**Before Each Tool Execution:**
+
+* **Tool Authorization**
+  - Verify tool permissions
+  - Check user access rights
+  - Validate parameters
+
+* **Parameter Validation**
+  - Type checking
+  - Range validation
+  - Format verification
+  - Injection prevention
+
+* **Scope Limitation**
+  - Restrict file access paths
+  - Limit API endpoints
+  - Sandbox execution
+  - Network restrictions
+
+* **Audit Logging**
+  - Log all tool calls
+  - Track parameters
+  - Record outcomes
+  - Monitor patterns;
+
+:**14. Data Access Guardrails**
+----
+* Enforce data access policies:
+  - Column-level security
+  - Row-level security
+  - Field masking
+  - Encryption at rest
+* Validate data queries
+* Prevent SQL injection
+* Limit result set size
+* Apply data retention policies
+* Ensure compliance (GDPR, HIPAA);
+
+:**15. External API Guardrails**
+----
+* Validate API endpoints
+* Check API quotas
+* Rate limit API calls
+* Verify API keys
+* Monitor API costs
+* Implement timeouts
+* Handle API failures
+* Log API interactions
+* Apply retry limits
+* Circuit breaker pattern;
+
+}
+
+partition "**OUTPUT GUARDRAILS**" {
+
+:**16. Output Generation Complete**
+----
+* Receive LLM output
+* Capture raw response
+* Extract metadata
+* Initial logging;
+
+:**17. Output Content Moderation**
+----
+**Safety Checks:**
+
+* **Toxicity Detection**
+  - Hate speech
+  - Offensive content
+  - Harassment
+
+* **Violence & Harm**
+  - Violent content
+  - Self-harm instructions
+  - Dangerous advice
+
+* **Sexual Content**
+  - Explicit content
+  - Sexual harassment
+
+* **Misinformation Check**
+  - False claims
+  - Misleading info
+  - Conspiracy theories
+
+* **Bias Detection**
+  - Discriminatory content
+  - Unfair stereotypes
+  - Biased opinions
+
+* Calculate safety scores
+* Apply moderation thresholds;
+
+if (Output Safe?) then (No)
+  :**Block Unsafe Output**
+  ----
+  * Log violation
+  * Increment violation counter
+  * Generate safe alternative
+  * Return filtered response
+  * Notify moderators;
+  
+  note right
+    Options:
+    - Return safe default
+    - Regenerate with stricter prompt
+    - Return error message
+  end note
+else (Yes)
+endif
+
+:**18. Hallucination Detection**
+----
+**Verify Factual Accuracy:**
+
+* **Grounding Check**
+  - Compare with source documents
+  - Verify citations exist
+  - Check fact consistency
+
+* **Attribution Validation**
+  - Verify all claims sourced
+  - Check citation accuracy
+  - Validate references
+
+* **Confidence Assessment**
+  - Check uncertainty markers
+  - Identify speculation
+  - Flag low-confidence claims
+
+* **Contradiction Detection**
+  - Check internal consistency
+  - Compare with known facts
+  - Identify logical conflicts
+
+* Calculate faithfulness score
+* Apply thresholds;
+
+if (Hallucination\nDetected?) then (Yes - High Risk)
+  :**Add Disclaimers**
+  ----
+  * Flag uncertain content
+  * Add confidence scores
+  * Include caveats
+  * Provide sources
+  * Request verification;
+  
+else (No or Low Risk)
+endif
+
+:**19. PII Leakage Prevention**
+----
+**Scan Output for PII:**
+
+* Detect exposed PII:
+  - Names
+  - Email addresses
+  - Phone numbers
+  - Addresses
+  - SSN/IDs
+  - Financial info
+  - Health data
+
+* Check against whitelist
+* Verify consent
+* Apply redaction:
+  - Mask sensitive data
+  - Replace with placeholders
+  - Remove if necessary
+
+* Log PII exposure attempts
+* Alert security team;
+
+:**20. Sensitive Information Filter**
+----
+**Block Restricted Content:**
+
+* **Proprietary Information**
+  - Trade secrets
+  - Internal documents
+  - Confidential data
+  - API keys/credentials
+
+* **Competitive Intelligence**
+  - Business strategies
+  - Pricing information
+  - Customer lists
+
+* **Legal/Compliance**
+  - Attorney-client privilege
+  - Regulatory data
+  - Audit information
+
+* Apply information barriers
+* Enforce need-to-know
+* Log access attempts;
+
+:**21. Bias & Fairness Check**
+----
+**Detect Biases:**
+
+* **Demographic Bias**
+  - Gender bias
+  - Racial bias
+  - Age bias
+  - Geographic bias
+
+* **Representation Bias**
+  - Stereotyping
+  - Underrepresentation
+  - Misrepresentation
+
+* **Outcome Bias**
+  - Disparate impact
+  - Unfair advantages
+  - Discriminatory results
+
+**Mitigation:**
+* Apply debiasing techniques
+* Rewrite biased content
+* Add balanced perspectives
+* Flag for human review;
+
+:**22. Compliance Validation**
+----
+**Ensure Regulatory Compliance:**
+
+* **GDPR (EU)**
+  - Right to explanation
+  - Data minimization
+  - Consent requirements
+  - Right to deletion
+
+* **CCPA (California)**
+  - Data disclosure
+  - Opt-out rights
+  - Data sale restrictions
+
+* **HIPAA (Healthcare)**
+  - PHI protection
+  - Minimum necessary
+  - Audit trails
+
+* **Industry Standards**
+  - SOC 2
+  - ISO 27001
+  - NIST frameworks
+
+* Validate compliance
+* Generate audit logs
+* Document processing;
+
+:**23. Output Formatting & Sanitization**
+----
+* Clean output text
+* Remove harmful patterns
+* Escape special characters
+* Validate output format
+* Apply length limits
+* Structure response
+* Format markdown
+* Add metadata;
+
+:**24. Citation & Source Validation**
+----
+* Verify all citations
+* Check source availability
+* Validate URLs
+* Ensure attribution
+* Remove broken links
+* Add source metadata
+* Format references
+* Check licensing;
+
+:**25. Quality Assurance**
+----
+**Final Quality Checks:**
+
+* **Relevance**
+  - Answers user query
+  - Stays on topic
+  - Provides value
+
+* **Completeness**
+  - Addresses all aspects
+  - Sufficient detail
+  - No missing info
+
+* **Coherence**
+  - Logical flow
+  - Clear language
+  - Proper structure
+
+* **Accuracy**
+  - Factually correct
+  - Up-to-date info
+  - Properly sourced
+
+* Calculate quality score
+* Apply minimum thresholds;
+
+if (Quality\nAcceptable?) then (No)
+  :Add Quality Warning;
+  :Offer Regeneration;
+else (Yes)
+endif
+
+}
+
+partition "**MEMORY UPDATE**" {
+
+:**26. Memory Storage**
+----
+**Update Memory Systems:**
+
+* **Short-term Memory:**
+  - Store current exchange
+  - Update session context
+  - Maintain conversation flow
+
+* **Long-term Memory:**
+  - Update user profile
+  - Save preferences
+  - Store learned patterns
+  - Update semantic knowledge
+
+* **Episodic Memory:**
+  - Record interaction episode
+  - Tag with metadata
+  - Link to outcomes
+  - Index for retrieval
+
+* Apply memory consolidation
+* Manage memory capacity
+* Archive old memories
+* Update memory indices;
+
+}
+
+partition "**MONITORING & AUDIT**" {
+
+:**27. Comprehensive Logging**
+----
+* Log complete interaction:
+  - Input (sanitized)
+  - Guardrail checks (all)
+  - Processing steps
+  - Tool usage
+  - Output (sanitized)
+  - Violations detected
+  - Actions taken
+  - Performance metrics
+
+* Store in audit database
+* Apply retention policies
+* Encrypt sensitive logs
+* Enable log analysis;
+
+:**28. Metrics & Analytics**
+----
+**Track Metrics:**
+
+* **Safety Metrics**
+  - Violation rate
+  - Block rate
+  - False positive rate
+  - Attack detection rate
+
+* **Quality Metrics**
+  - Output quality scores
+  - Hallucination rate
+  - Accuracy rate
+  - User satisfaction
+
+* **Performance Metrics**
+  - Latency (per guardrail)
+  - Throughput
+  - Resource usage
+  - Cost per request
+
+* **Compliance Metrics**
+  - Policy adherence
+  - Audit trail completeness
+  - Regulatory compliance
+
+* Update dashboards
+* Generate reports
+* Set up alerts;
+
+:**29. Anomaly Detection**
+----
+* Detect anomalous patterns:
+  - Unusual user behavior
+  - Attack patterns
+  - System abuse
+  - Performance degradation
+  - Quality drops
+
+* Apply ML anomaly detection
+* Set up threshold alerts
+* Trigger investigations
+* Auto-block suspicious activity;
+
+:**30. Continuous Improvement**
+----
+* Analyze violations
+* Review false positives
+* Update guardrail rules
+* Tune thresholds
+* Add new patterns
+* Improve filters
+* Update policies
+* Retrain models
+* Optimize performance;
+
+}
+
+:**Output Delivered with Full Guardrails**;
+
+stop
+
+legend right
+  |= **GUARDRAIL CATEGORIES** |
+  | **Input Guardrails** |
+  | - Validation |
+  | - Content safety |
+  | - PII detection |
+  | - Prompt injection |
+  | - Rate limiting |
+  | - Authorization |
+  | **Processing Guardrails** |
+  | - Resource monitoring |
+  | - Tool authorization |
+  | - Data access control |
+  | - API guardrails |
+  | **Output Guardrails** |
+  | - Content moderation |
+  | - Hallucination detection |
+  | - PII leakage prevention |
+  | - Bias detection |
+  | - Compliance validation |
+  | **Memory Architecture** |
+  | - Short-term (session) |
+  | - Long-term (persistent) |
+  |   * Semantic |
+  |   * Procedural |
+  |   * User profile |
+  | - Episodic (experiences) |
+  | - Buffer (immediate) |
+  | - External (RAG) |
+endlegend
+
+note right
+  **Memory Characteristics:**
+  
+  **Short-term Memory:**
+  * Volatile, session-only
+  * Fast access
+  * Limited capacity
+  * RAM/Redis storage
+  
+  **Long-term Memory:**
+  * Persistent storage
+  * Large capacity
+  * Vector DB, SQL
+  * Indexed retrieval
+  
+  **Episodic Memory:**
+  * Time-stamped events
+  * Context-rich
+  * Similarity search
+  * Experience replay
+  
+  **Key Guardrail Tools:**
+  * Perspective API (toxicity)
+  * Azure Content Safety
+  * OpenAI Moderation API
+  * Custom ML classifiers
+  * Regex patterns
+  * NER models
+  * Vector similarity
+  
+  **Compliance Frameworks:**
+  * GDPR, CCPA, HIPAA
+  * SOC 2, ISO 27001
+  * NIST AI RMF
+  * EU AI Act
+end note
+
+@enduml

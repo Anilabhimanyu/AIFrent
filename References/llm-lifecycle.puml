@@ -1,0 +1,465 @@
+@startuml LLM_Lifecycle
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E8F5E9
+  BorderColor #388E3C
+  FontSize 12
+  FontColor #263238
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F57F17
+}
+
+title End-to-End LLM Lifecycle (Text-Token-Embedding Pipeline)
+
+start
+
+:**1. Problem Definition & Requirements**
+----
+* Define use case
+  (Text Generation, Classification,
+   Summarization, Translation)
+* Identify input/output format
+* Define success metrics
+  (Perplexity, BLEU, ROUGE, Accuracy)
+* Determine model size constraints
+  (Parameters, Memory, Latency)
+* Set quality requirements
+* Define inference requirements;
+
+:**2. Data Collection & Sourcing**
+----
+* Identify text data sources
+  (Web Scraping, APIs, Databases,
+   Public Datasets, Books, Articles)
+* Collect domain-specific corpora
+* Gather user-generated content
+* Obtain licensed datasets
+* Ensure data diversity
+* Document data sources
+* Check data rights/licensing;
+
+:**3. Data Quality Assessment**
+----
+* Check for completeness
+* Assess text quality
+* Identify noise and errors
+* Detect duplicate content
+* Analyze language distribution
+* Check for bias in data
+* Validate data integrity
+* Measure dataset size;
+
+:**4. Text Preprocessing & Cleaning**
+----
+* Remove HTML/XML tags
+* Strip special characters
+* Handle URLs and emails
+* Remove or normalize emojis
+* Fix encoding issues (UTF-8)
+* Remove excessive whitespace
+* Handle newlines and tabs
+* Normalize unicode characters
+* Remove control characters;
+
+:**5. Text Normalization**
+----
+* Convert to lowercase (if needed)
+* Expand contractions (don't → do not)
+* Handle abbreviations
+* Normalize punctuation
+* Handle numbers and dates
+* Standardize formats
+* Apply language-specific rules
+* Preserve semantic meaning;
+
+:**6. Text Filtering & Selection**
+----
+* Remove toxic content
+* Filter spam and gibberish
+* Apply length filters
+  (Min/Max tokens)
+* Remove duplicates/near-duplicates
+* Filter by language
+* Quality-based filtering
+* Apply content policies
+* Balance dataset;
+
+:**7. Tokenization Strategy**
+----
+* Choose tokenization method:
+  - Byte-Pair Encoding (BPE)
+  - WordPiece
+  - SentencePiece
+  - Unigram Language Model
+* Define vocabulary size
+  (e.g., 30K, 50K, 100K tokens)
+* Handle unknown tokens
+* Configure special tokens
+  ([PAD], [UNK], [CLS], [SEP],
+   [MASK], [EOS], [BOS])
+* Set tokenization parameters;
+
+:**8. Vocabulary Building**
+----
+* Train tokenizer on corpus
+* Build token vocabulary
+* Assign token IDs
+* Create token-to-ID mapping
+* Create ID-to-token mapping
+* Save vocabulary file
+* Calculate token frequencies
+* Handle rare tokens
+* Set merge rules (for BPE);
+
+:**9. Text Tokenization**
+----
+* Apply tokenizer to corpus
+* Convert text to token sequences
+* Handle out-of-vocabulary words
+* Apply subword splitting
+* Preserve special tokens
+* Generate token statistics
+* Validate tokenization
+* Store tokenized data;
+
+:**10. Sequence Processing**
+----
+* Determine sequence length
+  (e.g., 512, 1024, 2048 tokens)
+* Apply padding/truncation
+* Create attention masks
+* Generate position indices
+* Handle document boundaries
+* Create segment embeddings
+* Apply sequence chunking
+* Maintain context windows;
+
+:**11. Token Embedding Initialization**
+----
+* Define embedding dimension
+  (e.g., 256, 512, 768, 1024)
+* Initialize embedding matrix
+  (Vocabulary Size × Embedding Dim)
+* Choose initialization method
+  (Random, Xavier, He, Pre-trained)
+* Create position embeddings
+* Create segment embeddings
+* Set embedding layer parameters
+* Configure embedding dropout;
+
+:**12. Dataset Preparation**
+----
+* Create training batches
+* Shuffle data
+* Split train/validation/test
+  (e.g., 98%/1%/1%)
+* Create data loaders
+* Set batch size
+* Apply dynamic padding
+* Implement data sampling
+* Create evaluation datasets
+* Prepare prompt templates
+  (for instruction tuning);
+
+:**13. Model Architecture Selection**
+----
+* Choose architecture type:
+  - Encoder-only (BERT-style)
+  - Decoder-only (GPT-style)
+  - Encoder-Decoder (T5-style)
+* Define model size:
+  - Number of layers
+  - Hidden dimension
+  - Number of attention heads
+  - Feed-forward dimension
+  - Total parameters
+* Configure architecture details:
+  - Attention mechanism
+  - Activation functions
+  - Layer normalization
+  - Dropout rates;
+
+:**14. Model Component Setup**
+----
+**Embedding Layer:**
+* Token embeddings
+* Position embeddings
+* Segment embeddings (optional)
+* Embedding dropout
+
+**Transformer Blocks:**
+* Multi-head self-attention
+* Attention masking
+* Layer normalization
+* Feed-forward network
+* Residual connections
+* Dropout layers
+
+**Output Layer:**
+* Linear projection layer
+* Vocabulary size output
+* Softmax activation;
+
+:**15. Training Configuration**
+----
+* Select loss function
+  (Cross-Entropy Loss)
+* Choose optimizer
+  (Adam, AdamW, SGD)
+* Set learning rate
+  (e.g., 1e-4 to 5e-4)
+* Configure learning rate schedule
+  (Warmup, Cosine Decay, Linear)
+* Set batch size & gradient accumulation
+* Configure mixed precision (FP16/BF16)
+* Set weight decay
+* Configure gradient clipping
+* Set number of epochs/steps;
+
+:**16. Model Training**
+----
+* Initialize model weights
+* Load training data batches
+* Forward pass:
+  - Input token IDs
+  - Apply embeddings
+  - Process through transformer layers
+  - Generate logits
+* Calculate loss
+* Backward pass:
+  - Compute gradients
+  - Apply gradient clipping
+  - Update weights via optimizer
+* Log training metrics
+  (Loss, Perplexity)
+* Save checkpoints
+* Monitor GPU/memory usage;
+
+repeat
+  :**17. Validation & Evaluation**
+  ----
+  * Run on validation set
+  * Calculate validation loss
+  * Compute perplexity
+  * Evaluate on downstream tasks
+  * Check for overfitting
+  * Analyze sample generations
+  * Compare with baseline
+  * Track convergence metrics;
+
+  if (Model Converged?) then (No)
+    :**18. Hyperparameter Adjustment**
+    ----
+    * Adjust learning rate
+    * Modify batch size
+    * Change warmup steps
+    * Tune dropout rates
+    * Adjust gradient clipping
+    * Modify architecture
+      (layers, dimensions);
+    
+    :Continue Training;
+  else (Yes)
+  endif
+repeat while (Training Complete?) is (No)
+->Yes;
+
+:**19. Final Model Evaluation**
+----
+* Test on held-out test set
+* Calculate test perplexity
+* Run task-specific metrics:
+  - BLEU score (translation)
+  - ROUGE score (summarization)
+  - Accuracy (classification)
+  - F1 score
+* Perform human evaluation
+* Test on edge cases
+* Analyze failure modes
+* Benchmark against baselines
+* Document performance;
+
+if (Performance\nAcceptable?) then (No)
+  :Analyze Issues\nand Iterate;
+  note right
+    May need to revisit:
+    - Data collection
+    - Architecture design
+    - Training configuration
+  end note
+  stop
+else (Yes)
+endif
+
+:**20. Model Optimization**
+----
+* Apply quantization
+  (INT8, INT4)
+* Perform weight pruning
+* Apply knowledge distillation
+* Optimize inference graph
+* Compile model (TorchScript, ONNX)
+* Optimize for hardware
+  (GPU, CPU, TPU)
+* Reduce model size
+* Improve latency;
+
+:**21. Export & Serialization**
+----
+* Save model weights
+* Save vocabulary file
+* Save tokenizer config
+* Export to standard format
+  (HuggingFace, ONNX, TensorRT)
+* Document model card
+* Version model artifacts
+* Package dependencies
+* Create inference script;
+
+:**22. Deployment Setup**
+----
+* Choose deployment platform
+  (Cloud, On-premise, Edge)
+* Containerize model (Docker)
+* Set up API endpoint
+  (REST, gRPC, WebSocket)
+* Configure serving framework
+  (TorchServe, TensorFlow Serving,
+   FastAPI, vLLM)
+* Implement batching
+* Set up load balancing
+* Configure auto-scaling
+* Implement rate limiting;
+
+:**23. Inference Pipeline**
+----
+**Input Processing:**
+* Receive text input
+* Apply preprocessing
+* Tokenize input text
+* Convert to token IDs
+* Create attention mask
+* Prepare input tensors
+
+**Model Inference:**
+* Load model to memory
+* Run forward pass
+* Generate token logits
+* Apply sampling strategy
+  (Greedy, Beam Search,
+   Top-k, Top-p/Nucleus,
+   Temperature Sampling)
+* Generate output tokens
+
+**Output Processing:**
+* Decode token IDs to text
+* Apply post-processing
+* Format response
+* Return to user;
+
+:**24. Model Monitoring**
+----
+* Track inference metrics:
+  - Latency (p50, p95, p99)
+  - Throughput (requests/sec)
+  - Error rates
+  - Token generation rate
+* Monitor resource usage:
+  - GPU utilization
+  - Memory consumption
+  - CPU usage
+* Log predictions
+* Track input distribution
+* Monitor output quality
+* Detect anomalies
+* Alert on degradation;
+
+:**25. Performance Analysis**
+----
+* Analyze user feedback
+* Review failure cases
+* Detect input drift
+* Measure task accuracy
+* Identify edge cases
+* Benchmark competitors
+* Calculate business metrics
+* Assess user satisfaction;
+
+if (Performance\nDegraded?) then (Yes)
+  :**26. Model Update Strategy**
+  ----
+  * Collect new data
+  * Fine-tune on new data
+  * Retrain if needed
+  * Validate updated model
+  * A/B test new version
+  * Gradual rollout
+  * Monitor impact;
+  
+  :Deploy Updated Model;
+else (No)
+  :Continue Service;
+endif
+
+stop
+
+legend right
+  |= **LLM Lifecycle Phases** |
+  | **Phase 1: Planning** |
+  | - Problem Definition |
+  | **Phase 2: Data Preparation** |
+  | - Collection & Sourcing |
+  | - Quality Assessment |
+  | - Preprocessing & Cleaning |
+  | - Normalization |
+  | - Filtering |
+  | **Phase 3: Tokenization** |
+  | - Strategy Selection |
+  | - Vocabulary Building |
+  | - Text Tokenization |
+  | - Sequence Processing |
+  | **Phase 4: Embeddings** |
+  | - Embedding Initialization |
+  | - Dataset Preparation |
+  | **Phase 5: Model Development** |
+  | - Architecture Selection |
+  | - Component Setup |
+  | - Training Configuration |
+  | - Model Training |
+  | - Validation & Tuning |
+  | **Phase 6: Evaluation** |
+  | - Final Evaluation |
+  | - Model Optimization |
+  | **Phase 7: Deployment** |
+  | - Export & Serialization |
+  | - Deployment Setup |
+  | - Inference Pipeline |
+  | **Phase 8: Operations** |
+  | - Monitoring |
+  | - Performance Analysis |
+  | - Continuous Updates |
+endlegend
+
+note right
+  **Key Components:**
+  * Text → Tokens → IDs
+  * Token Embeddings
+  * Position Embeddings
+  * Transformer Layers
+  * Self-Attention Mechanism
+  * Feed-Forward Networks
+  * Layer Normalization
+  * Residual Connections
+  * Output Projection
+  * Softmax → Probabilities
+  
+  **Critical Metrics:**
+  * Perplexity (lower is better)
+  * Loss (training/validation)
+  * Generation Quality
+  * Inference Latency
+  * Throughput
+end note
+
+@enduml

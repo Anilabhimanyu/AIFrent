@@ -1,0 +1,943 @@
+@startuml MCP_Lifecycle
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E0F2F1
+  BorderColor #00695C
+  FontSize 12
+  FontColor #263238
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F57F17
+}
+
+title Model Context Protocol (MCP) - Complete End-to-End Lifecycle
+
+start
+
+partition "**MCP ARCHITECTURE OVERVIEW**" {
+
+:**MCP System Components**
+----
+**Core Components:**
+
+**1. MCP SERVER**
+* Exposes resources and capabilities
+* Implements MCP protocol
+* Manages context and tools
+* Handles requests from clients
+* Types:
+  - Resource servers (data/content)
+  - Tool servers (functions/actions)
+  - Prompt servers (templates)
+  - Hybrid servers (multiple types)
+
+**2. MCP CLIENT**
+* Connects to MCP servers
+* Discovers available resources
+* Makes requests to servers
+* Receives and processes responses
+* Typically integrated in:
+  - AI applications
+  - Chat interfaces
+  - IDEs (Claude Desktop, VS Code)
+  - Development tools
+
+**3. MCP PROTOCOL**
+* JSON-RPC 2.0 based
+* Transport layers:
+  - stdio (Standard I/O)
+  - HTTP/SSE (Server-Sent Events)
+  - WebSocket (future)
+* Message types:
+  - Requests
+  - Responses
+  - Notifications
+
+**4. RESOURCES**
+* Data/content exposed by server
+* Types:
+  - Text resources
+  - File resources
+  - Database queries
+  - API data
+  - Dynamic content
+* URI-based addressing
+
+**5. TOOLS**
+* Functions/actions server provides
+* Executable capabilities
+* Input schemas (JSON Schema)
+* Output format definitions
+
+**6. PROMPTS**
+* Reusable prompt templates
+* Dynamic arguments
+* Context injection
+* Template variables;
+
+}
+
+partition "**SERVER DEVELOPMENT**" {
+
+:**1. Server Setup & Initialization**
+----
+**Create MCP Server:**
+
+* Choose implementation:
+  - TypeScript/JavaScript SDK
+  - Python SDK
+  - Custom implementation
+
+* Install MCP SDK:
+  - npm install @modelcontextprotocol/sdk
+  - pip install mcp
+
+* Initialize server instance
+* Configure server metadata:
+  - Name
+  - Version
+  - Description
+  - Capabilities
+
+* Set up transport:
+  - stdio transport
+  - HTTP/SSE transport
+  - Custom transport
+
+**Example Structure:**
+* Server class initialization
+* Protocol version: 2024-11-05
+* Implementation info
+* Capability declarations;
+
+:**2. Resource Registration**
+----
+**Define & Register Resources:**
+
+* Create resource definitions:
+  - Resource URI scheme
+  - Resource metadata
+  - Content types (MIME)
+  - Access patterns
+
+* Implement resource handlers:
+  - List resources (discovery)
+  - Read resource (fetch content)
+  - Subscribe to updates (optional)
+  - Resource templates
+
+**Resource Types:**
+* **Static Resources**
+  - Files
+  - Documents
+  - Configuration data
+
+* **Dynamic Resources**
+  - Database queries
+  - API results
+  - Computed data
+  - Real-time data
+
+**Resource Schema:**
+* URI: resource://server/path
+* Name: Display name
+* Description: Purpose
+* MIME type: Content format
+* Metadata: Additional info;
+
+:**3. Tool Registration**
+----
+**Define & Register Tools:**
+
+* Create tool definitions:
+  - Tool name (unique ID)
+  - Description (what it does)
+  - Input schema (JSON Schema)
+  - Output format
+
+* Implement tool handlers:
+  - Parse input parameters
+  - Validate inputs
+  - Execute tool logic
+  - Return structured output
+  - Handle errors
+
+**Tool Types:**
+* **Data Tools**
+  - Query databases
+  - Search files
+  - Fetch APIs
+  - Read sensors
+
+* **Action Tools**
+  - Write files
+  - Send emails
+  - Make API calls
+  - Execute commands
+
+* **Computation Tools**
+  - Calculate values
+  - Transform data
+  - Analyze content
+  - Generate reports
+
+**Input Schema Example:**
+* type: object
+* properties: parameters
+* required: mandatory fields
+* descriptions: field help;
+
+:**4. Prompt Registration**
+----
+**Define & Register Prompts:**
+
+* Create prompt templates:
+  - Prompt name
+  - Description
+  - Template text
+  - Dynamic arguments
+  - Argument schemas
+
+* Implement prompt handlers:
+  - Accept arguments
+  - Generate prompt
+  - Insert variables
+  - Return formatted prompt
+
+**Prompt Features:**
+* Variable substitution
+* Conditional sections
+* Context injection
+* Multi-turn templates
+* System instructions;
+
+:**5. Capability Declaration**
+----
+**Declare Server Capabilities:**
+
+* **Resources Capability**
+  - supports: true/false
+  - listChanged: notification support
+  - subscribe: subscription support
+
+* **Tools Capability**
+  - supports: true/false
+  - Available tools count
+
+* **Prompts Capability**
+  - supports: true/false
+  - Available prompts count
+
+* **Logging Capability**
+  - supports: true/false
+  - Log levels supported
+
+* **Sampling Capability**
+  - supports: true/false
+  - LLM sampling support
+
+Document all capabilities
+Version compatibility;
+
+:**6. Server Configuration**
+----
+* Set up environment variables
+* Configure credentials/API keys
+* Set resource paths
+* Configure rate limits
+* Set timeout values
+* Configure logging
+* Define error handling
+* Set security policies
+* Configure CORS (if HTTP)
+* Set up authentication;
+
+:**7. Server Startup**
+----
+* Initialize transport layer
+* Start listening for connections
+* Register signal handlers
+* Set up graceful shutdown
+* Log server ready state
+* Publish server metadata
+* Wait for client connections
+* Monitor server health;
+
+}
+
+partition "**CLIENT INTEGRATION**" {
+
+:**8. Client Setup**
+----
+**Initialize MCP Client:**
+
+* Install MCP client SDK
+* Create client instance
+* Configure client settings:
+  - Client name
+  - Client version
+  - Timeout settings
+  - Retry policies
+
+* Set up transport connection:
+  - stdio (subprocess)
+  - HTTP/SSE endpoint
+  - Connection parameters
+
+* Initialize client capabilities:
+  - Roots (workspace roots)
+  - Sampling (LLM access)
+  - Notifications;
+
+:**9. Server Discovery & Connection**
+----
+**Connect to MCP Server:**
+
+* Configure server connection:
+  - Server command (for stdio)
+  - Server URL (for HTTP)
+  - Environment variables
+  - Working directory
+
+* Establish connection:
+  - Start server process (stdio)
+  - HTTP handshake
+  - Protocol negotiation
+
+* Exchange initialization:
+  - Send initialize request
+  - Server returns capabilities
+  - Client acknowledges
+  - Send initialized notification
+
+* Store server connection
+* Log connection status;
+
+:**10. Capability Negotiation**
+----
+**Exchange Capabilities:**
+
+* **Client sends initialize:**
+  - protocolVersion
+  - clientInfo (name, version)
+  - capabilities:
+    * roots (list)
+    * sampling (LLM access)
+    * experimental features
+
+* **Server responds:**
+  - protocolVersion
+  - serverInfo (name, version)
+  - capabilities:
+    * resources
+    * tools
+    * prompts
+    * logging
+    * sampling
+  - instructions (optional)
+
+* Store negotiated capabilities
+* Validate compatibility
+* Enable/disable features;
+
+:**11. Server Discovery**
+----
+**Discover Available Resources:**
+
+* **List Resources:**
+  - Send resources/list request
+  - Receive resource list
+  - Store resource metadata:
+    * URI
+    * Name
+    * Description
+    * MIME type
+    * Annotations
+
+* **List Tools:**
+  - Send tools/list request
+  - Receive tool list
+  - Store tool metadata:
+    * Name
+    * Description
+    * Input schema
+
+* **List Prompts:**
+  - Send prompts/list request
+  - Receive prompt list
+  - Store prompt metadata:
+    * Name
+    * Description
+    * Arguments
+
+* Cache discovered items
+* Update UI/interface
+* Enable user selection;
+
+}
+
+partition "**RUNTIME OPERATIONS**" {
+
+:**12. User Request**
+----
+* User submits query/command
+* Parse user intent
+* Identify required resources:
+  - Context needed
+  - Tools to use
+  - Prompts to apply
+* Determine MCP operations
+* Plan execution sequence;
+
+:**13. Resource Reading**
+----
+**Read Resource Content:**
+
+* **Build Request:**
+  - Method: resources/read
+  - params:
+    * uri: resource URI
+    * additional options
+
+* **Send Request:**
+  - JSON-RPC request
+  - Request ID
+  - Transport to server
+
+* **Receive Response:**
+  - contents array:
+    * uri
+    * mimeType
+    * text or blob
+  - metadata
+
+* **Process Content:**
+  - Parse based on MIME type
+  - Extract relevant data
+  - Store in context
+  - Handle errors
+
+* Cache resource content
+* Update access timestamp;
+
+:**14. Tool Execution**
+----
+**Execute Server Tool:**
+
+* **Prepare Tool Call:**
+  - Tool name
+  - Input parameters (validated)
+  - JSON Schema compliance
+
+* **Build Request:**
+  - Method: tools/call
+  - params:
+    * name: tool name
+    * arguments: parameters object
+
+* **Send Request:**
+  - JSON-RPC request
+  - Set timeout
+  - Transport to server
+
+* **Server Processing:**
+  - Validate inputs
+  - Execute tool logic
+  - Generate output
+  - Format response
+
+* **Receive Response:**
+  - content array:
+    * type: text/image/resource
+    * text/data/uri
+  - isError: boolean
+  - tool execution metadata
+
+* **Handle Result:**
+  - Parse tool output
+  - Integrate into workflow
+  - Log execution
+  - Handle errors;
+
+:**15. Prompt Generation**
+----
+**Get Prompt from Server:**
+
+* **Build Request:**
+  - Method: prompts/get
+  - params:
+    * name: prompt name
+    * arguments: dynamic args
+
+* **Send Request:**
+  - JSON-RPC request
+  - Include argument values
+
+* **Server Processing:**
+  - Load prompt template
+  - Substitute variables
+  - Inject context
+  - Format prompt
+
+* **Receive Response:**
+  - description: prompt purpose
+  - messages array:
+    * role: system/user/assistant
+    * content: text/image/resource
+  - formatted prompt
+
+* **Use Prompt:**
+  - Send to LLM
+  - Include in conversation
+  - Apply to task;
+
+:**16. Sampling (LLM Requests)**
+----
+**Server Requests LLM Completion:**
+
+* **Server sends sampling/createMessage:**
+  - messages: conversation history
+  - modelPreferences:
+    * hints (suggested models)
+    * costPriority
+    * speedPriority
+    * intelligencePriority
+  - systemPrompt
+  - includeContext
+  - temperature
+  - maxTokens
+  - stopSequences
+  - metadata
+
+* **Client Processing:**
+  - Select appropriate LLM
+  - Build LLM request
+  - Include context
+  - Send to LLM API
+
+* **LLM Response:**
+  - Generated text
+  - Token usage
+  - Finish reason
+
+* **Client Returns:**
+  - model: used model
+  - role: assistant
+  - content: generated text
+  - stopReason
+  - usage metrics
+
+* Server continues processing
+* Enables server-driven LLM use;
+
+:**17. Context Assembly**
+----
+**Combine All Context:**
+
+* Collect from multiple sources:
+  - Resource content (MCP)
+  - Tool outputs (MCP)
+  - Prompt templates (MCP)
+  - Conversation history
+  - User preferences
+  - System context
+
+* Structure context:
+  - Prioritize by relevance
+  - Order logically
+  - Format consistently
+  - Add metadata
+
+* Manage context size:
+  - Token counting
+  - Truncation strategy
+  - Compression
+  - Summarization
+
+* Prepare for LLM;
+
+:**18. LLM Request**
+----
+**Send to Language Model:**
+
+* Build final prompt:
+  - System instructions
+  - MCP context (resources)
+  - Tool descriptions
+  - User query
+  - Conversation history
+
+* Configure LLM parameters:
+  - Model selection
+  - Temperature
+  - Max tokens
+  - Top-p
+  - Stop sequences
+
+* Send API request
+* Handle streaming (optional)
+* Monitor token usage
+* Track costs;
+
+:**19. Response Processing**
+----
+* Receive LLM output
+* Parse response
+* Extract:
+  - Answer text
+  - Tool calls (if any)
+  - Citations
+  - Reasoning
+
+* Validate response
+* Check for tool invocations
+* Process structured outputs;
+
+if (Tool Call\nRequested?) then (Yes)
+  :Parse Tool Call;
+  :Execute via MCP;
+  note right
+    Loop back to step 14
+    for tool execution
+  end note
+  detach
+else (No)
+endif
+
+:**20. Response Enhancement**
+----
+* Add MCP resource citations
+* Link to source URIs
+* Include tool outputs
+* Format with context
+* Add metadata:
+  - Resources used
+  - Tools invoked
+  - Prompts applied
+  - Server sources
+* Structure final response;
+
+:**21. Response Delivery**
+----
+* Format for user
+* Include citations
+* Show resource links
+* Display tool results
+* Add interactive elements
+* Send to user interface
+* Log interaction;
+
+}
+
+partition "**NOTIFICATIONS & UPDATES**" {
+
+:**22. Server Notifications**
+----
+**Handle Server Events:**
+
+* **Resource List Changed:**
+  - Notification: notifications/resources/list_changed
+  - Refresh resource list
+  - Update UI
+
+* **Tool List Changed:**
+  - Notification: notifications/tools/list_changed
+  - Refresh tool list
+  - Update capabilities
+
+* **Prompt List Changed:**
+  - Notification: notifications/prompts/list_changed
+  - Refresh prompt list
+
+* **Progress Notifications:**
+  - Notification: notifications/progress
+  - Progress token
+  - Progress value
+  - Update UI indicators
+
+* **Log Messages:**
+  - Notification: notifications/message
+  - level: debug/info/warning/error
+  - logger: source
+  - data: message
+  - Log to console/file
+
+* Handle asynchronously
+* Update client state
+* Refresh caches;
+
+:**23. Client Notifications**
+----
+**Send to Server:**
+
+* **Roots Changed:**
+  - Notification: notifications/roots/list_changed
+  - New workspace roots
+  - Server updates context
+
+* **Cancellation:**
+  - Notification: notifications/cancelled
+  - requestId: cancelled request
+  - reason: cancellation reason
+  - Server stops processing
+
+* Send asynchronously
+* No response expected;
+
+}
+
+partition "**ERROR HANDLING & RESILIENCE**" {
+
+:**24. Error Handling**
+----
+**Handle MCP Errors:**
+
+* **Connection Errors:**
+  - Server unreachable
+  - Connection timeout
+  - Transport failure
+  - Retry strategy
+  - Fallback options
+
+* **Protocol Errors:**
+  - Invalid message format
+  - Unsupported method
+  - Protocol version mismatch
+  - Capability mismatch
+
+* **Request Errors:**
+  - Invalid parameters
+  - Resource not found
+  - Tool execution failure
+  - Permission denied
+  - Rate limit exceeded
+
+* **Response Errors:**
+  - error code
+  - error message
+  - error data
+  - Parse and handle
+  - Log details
+
+* Display user-friendly messages
+* Retry if appropriate
+* Fallback mechanisms
+* Circuit breaker pattern;
+
+:**25. Connection Management**
+----
+* Monitor connection health
+* Implement heartbeat/ping
+* Detect disconnections
+* Automatic reconnection:
+  - Exponential backoff
+  - Maximum retry attempts
+  - Connection pooling
+* Handle server restarts
+* Maintain session state
+* Graceful degradation;
+
+:**26. Resource Management**
+----
+* Manage open connections
+* Clean up resources:
+  - Close unused connections
+  - Clear caches
+  - Release file handles
+  - Free memory
+* Implement timeouts
+* Handle memory limits
+* Monitor resource usage
+* Apply rate limiting;
+
+}
+
+partition "**SECURITY & COMPLIANCE**" {
+
+:**27. Authentication & Authorization**
+----
+**Security Measures:**
+
+* **Authentication:**
+  - API keys
+  - OAuth tokens
+  - Certificates
+  - Environment variables
+  - Secure credential storage
+
+* **Authorization:**
+  - Resource access control
+  - Tool permission checks
+  - Role-based access (RBAC)
+  - Capability-based security
+
+* **Data Protection:**
+  - Encrypt in transit (TLS)
+  - Encrypt at rest
+  - Sanitize inputs
+  - Validate outputs
+  - PII protection
+
+* **Network Security:**
+  - CORS policies (HTTP)
+  - IP whitelisting
+  - Request signing
+  - Rate limiting
+
+* Audit logging
+* Compliance tracking;
+
+:**28. Input Validation**
+----
+* Validate all inputs:
+  - JSON Schema validation
+  - Parameter type checking
+  - Range validation
+  - Format verification
+  - Injection prevention
+
+* Sanitize inputs:
+  - Remove malicious code
+  - Escape special chars
+  - Normalize data
+
+* Apply security policies
+* Log validation failures;
+
+:**29. Monitoring & Observability**
+----
+**Track System Health:**
+
+* **Performance Metrics:**
+  - Request latency
+  - Response time
+  - Throughput
+  - Success/error rates
+  - Resource usage
+
+* **Usage Metrics:**
+  - Requests per server
+  - Most used resources
+  - Most used tools
+  - Active connections
+  - Token consumption
+
+* **Health Metrics:**
+  - Server availability
+  - Connection stability
+  - Error patterns
+  - Timeout rates
+
+* **Logging:**
+  - Structured logs
+  - Request/response logs
+  - Error logs
+  - Audit trails
+  - Debug traces
+
+* Set up dashboards
+* Configure alerts
+* Generate reports;
+
+:**30. Continuous Improvement**
+----
+* Analyze usage patterns
+* Identify bottlenecks
+* Optimize performance:
+  - Cache frequently used resources
+  - Batch similar requests
+  - Optimize tool execution
+  - Improve prompt templates
+
+* Update server capabilities
+* Add new resources/tools
+* Refine prompts
+* Update documentation
+* Version management
+* Monitor compatibility;
+
+}
+
+:**MCP System Running**;
+
+stop
+
+legend right
+  |= **MCP Lifecycle Phases** |
+  | **Phase 1: Server Development** |
+  | - Server setup & initialization |
+  | - Resource registration |
+  | - Tool registration |
+  | - Prompt registration |
+  | - Capability declaration |
+  | - Server startup |
+  | **Phase 2: Client Integration** |
+  | - Client setup |
+  | - Server discovery & connection |
+  | - Capability negotiation |
+  | - Resource/tool discovery |
+  | **Phase 3: Runtime Operations** |
+  | - User request processing |
+  | - Resource reading |
+  | - Tool execution |
+  | - Prompt generation |
+  | - Sampling (LLM requests) |
+  | - Context assembly |
+  | - Response processing |
+  | - Response delivery |
+  | **Phase 4: Event Handling** |
+  | - Server notifications |
+  | - Client notifications |
+  | **Phase 5: Operations** |
+  | - Error handling |
+  | - Connection management |
+  | - Security & compliance |
+  | - Monitoring |
+  | - Continuous improvement |
+endlegend
+
+note right
+  **MCP Protocol Basics:**
+  
+  **Transport Layers:**
+  * stdio: Process communication
+  * HTTP+SSE: Web-based
+  * (Future: WebSocket)
+  
+  **Message Format:**
+  * JSON-RPC 2.0
+  * Request: method + params + id
+  * Response: result/error + id
+  * Notification: method + params
+  
+  **Core Methods:**
+  * initialize / initialized
+  * resources/list
+  * resources/read
+  * resources/subscribe
+  * tools/list
+  * tools/call
+  * prompts/list
+  * prompts/get
+  * sampling/createMessage
+  * logging/setLevel
+  
+  **Key Features:**
+  * Bidirectional communication
+  * Server-driven LLM sampling
+  * Dynamic resource discovery
+  * Tool orchestration
+  * Prompt templating
+  * Progress tracking
+  * Notification system
+  
+  **Common Use Cases:**
+  * IDE integration (VS Code)
+  * Chat applications (Claude)
+  * Development tools
+  * Data access layers
+  * API aggregation
+  * Multi-tool orchestration
+end note
+
+@enduml

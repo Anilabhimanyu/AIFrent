@@ -1,0 +1,712 @@
+@startuml RAG_Application_Flow
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #FCE4EC
+  BorderColor #C2185B
+  FontSize 12
+  FontColor #263238
+  DiamondBackgroundColor #FFF9C4
+  DiamondBorderColor #F57F17
+}
+
+title RAG Application Runtime Flow (User Query → Response)
+
+start
+
+:**User Submits Query**
+----
+* User enters question/request
+* Via chat interface, API, or UI
+* Capture user context:
+  - User ID
+  - Session ID
+  - Conversation history
+  - User preferences
+  - Timestamp
+* Validate user authentication
+* Check rate limits
+* Log query initiation;
+
+:**1. Query Reception & Validation**
+----
+* Receive user query
+* Validate input:
+  - Check query length
+  - Minimum length (e.g., > 3 chars)
+  - Maximum length (e.g., < 500 chars)
+  - Character encoding
+* Check for empty/null queries
+* Detect query language
+* Sanitize input:
+  - Remove malicious content
+  - Strip special characters
+  - Normalize whitespace
+* Assign query ID
+* Log query details;
+
+if (Query Valid?) then (No)
+  :Return Error Message;
+  stop
+else (Yes)
+endif
+
+:**2. Query Understanding**
+----
+* Analyze query intent:
+  - Factual question
+  - How-to request
+  - Definition lookup
+  - Comparison request
+  - Troubleshooting
+* Extract key entities:
+  - Names, dates, locations
+  - Product names
+  - Technical terms
+* Identify query type
+* Detect query complexity
+* Classify query category
+* Extract filters from query
+  (dates, categories, etc.);
+
+:**3. Conversation Context Retrieval**
+----
+* Fetch conversation history
+* Get previous messages
+  (last N turns, e.g., 5-10)
+* Load user preferences
+* Retrieve session state
+* Get user metadata
+* Load persistent context
+* Check for follow-up indicators
+  ("it", "that", "also");
+
+:**4. Query Contextualization**
+----
+* Resolve pronouns/references
+  using conversation history
+* Merge with conversation context
+* Expand implicit information
+* Resolve ambiguities
+* Create standalone query
+  (independent of history)
+* Preserve user intent
+* Add temporal context;
+
+:**5. Query Preprocessing**
+----
+* Clean query text:
+  - Fix typos/spelling
+  - Expand abbreviations
+  - Normalize text
+  - Handle acronyms
+* Remove stop words (optional)
+* Apply text normalization
+* Tokenize query
+* Lemmatization (optional)
+* Prepare for embedding;
+
+:**6. Query Expansion (Optional)**
+----
+* Generate query variations:
+  - Synonyms
+  - Related terms
+  - Alternative phrasings
+  - Domain-specific terms
+* Create sub-queries
+  (for complex questions)
+* Add semantic expansions
+* Generate hypothetical answers
+  (HyDE technique)
+* Keep original query weight;
+
+:**7. Query Embedding Generation**
+----
+* Load embedding model
+  (same as indexing model)
+* Generate query vector:
+  - Convert text to embedding
+  - Normalize vector
+  - Dimension: e.g., 768, 1536
+* Validate embedding quality
+* Cache query embedding
+  (for repeated queries)
+* Handle embedding errors
+* Track embedding latency;
+
+:**8. Metadata Filter Construction**
+----
+* Extract filters from query:
+  - Date ranges
+  - Categories
+  - Document types
+  - Sources
+  - Tags
+* Apply user permissions:
+  - Access control
+  - Department filters
+  - Data sensitivity
+* Build filter query
+* Combine multiple filters
+* Set filter priority;
+
+:**9. Retrieval Configuration**
+----
+* Set retrieval parameters:
+  - Top-K: 5-20 results
+  - Similarity threshold: e.g., > 0.7
+  - Distance metric: Cosine/Euclidean
+* Choose search strategy:
+  - Dense vector search
+  - Sparse keyword search
+  - Hybrid (vector + keyword)
+* Configure weights
+  (for hybrid search)
+* Set diversity parameters
+* Apply boost factors;
+
+:**10. Vector Similarity Search**
+----
+* Query vector database
+* Perform similarity calculation:
+  - Cosine similarity
+  - Dot product
+  - Euclidean distance
+* Apply metadata filters
+* Retrieve top-K candidates:
+  - Chunk IDs
+  - Similarity scores
+  - Chunk text
+  - Metadata
+* Sort by relevance
+* Track search latency
+* Handle search errors;
+
+:**11. Initial Results Retrieval**
+----
+* Fetch chunk text
+* Retrieve chunk metadata:
+  - Source document
+  - Document title
+  - Section/page number
+  - Timestamp
+  - Author
+  - URL/file path
+* Get similarity scores
+* Collect source information
+* Validate retrieved chunks
+* Check for empty results;
+
+if (Results Found?) then (No)
+  :**No Results Handler**
+  ----
+  * Log failed retrieval
+  * Try fallback search:
+    - Broader query
+    - Reduced filters
+    - Keyword search
+    - Lower threshold
+  * Return graceful message
+  * Suggest alternatives
+  * Collect feedback;
+  
+  :Return "No Information Found";
+  stop
+else (Yes)
+endif
+
+:**12. Reranking (Optional)**
+----
+* Load reranking model:
+  - Cross-encoder model
+  - Cohere Rerank API
+  - Custom scorer
+* Calculate fine-grained relevance:
+  - Query-chunk pairs
+  - Semantic similarity
+  - Contextual relevance
+* Compute rerank scores
+* Reorder results by score
+* Apply score threshold
+* Filter low-quality results
+* Track reranking time;
+
+:**13. Result Deduplication**
+----
+* Identify duplicate/similar chunks
+* Calculate chunk similarity
+* Remove near-duplicates
+* Keep highest-scored version
+* Preserve diversity:
+  - Different sources
+  - Different perspectives
+  - Different sections
+* Maintain source variety;
+
+:**14. Context Assembly**
+----
+* Select final top-K chunks
+  (e.g., top 3-10)
+* Order by relevance score
+* Format context structure:
+  - Add separators
+  - Number chunks [1], [2], etc.
+  - Add source labels
+* Include metadata:
+  - Document titles
+  - Page/section numbers
+  - Timestamps
+* Calculate total context length
+* Respect LLM context window
+  (e.g., 4K, 8K, 32K tokens);
+
+:**15. Context Length Management**
+----
+* Count context tokens
+* Check against LLM limit
+* Apply truncation if needed:
+  - Remove lower-scored chunks
+  - Truncate individual chunks
+  - Summarize long chunks
+* Prioritize most relevant content
+* Preserve context coherence
+* Leave room for:
+  - System prompt
+  - User query
+  - Response generation;
+
+:**16. Source Citation Preparation**
+----
+* Map chunks to sources
+* Create citation references:
+  - [1] Document A, Page 5
+  - [2] Document B, Section 2.3
+* Prepare source URLs/links
+* Format citations
+* Track citation mapping
+* Prepare source metadata;
+
+:**17. Prompt Construction**
+----
+* Load prompt template
+* Build structured prompt:
+  
+  **System Instruction:**
+  - Define role and behavior
+  - Set answer guidelines
+  - Specify citation rules
+  
+  **Retrieved Context:**
+  - Insert formatted chunks
+  - Include source citations
+  - Number references
+  
+  **User Query:**
+  - Add original query
+  - Add any constraints
+  
+  **Output Instructions:**
+  - Response format
+  - Citation requirements
+  - Length guidelines
+* Optimize prompt length
+* Validate prompt structure;
+
+:**18. LLM Configuration**
+----
+* Select LLM model:
+  - GPT-4, Claude, Gemini
+  - Or self-hosted model
+* Set generation parameters:
+  - Temperature: 0.0-0.3
+    (lower for factual)
+  - Max tokens: 500-2000
+  - Top-p: 0.9-0.95
+  - Frequency penalty: 0.0
+  - Presence penalty: 0.0
+  - Stop sequences
+* Configure streaming (optional)
+* Set timeout: e.g., 30s;
+
+:**19. LLM API Call**
+----
+* Send request to LLM:
+  - Prompt with context
+  - Configuration parameters
+  - API authentication
+* Handle streaming response
+  (if enabled)
+* Monitor token usage:
+  - Prompt tokens
+  - Completion tokens
+  - Total tokens
+* Track generation latency
+* Handle API errors:
+  - Timeout
+  - Rate limit
+  - Server error
+* Implement retry logic;
+
+if (LLM Response\nReceived?) then (No)
+  :**Error Handling**
+  ----
+  * Retry with exponential backoff
+  * Try fallback model
+  * Return cached response
+  * Return error message
+  * Log error details;
+  
+  stop
+else (Yes)
+endif
+
+:**20. Response Reception**
+----
+* Receive LLM response
+* Collect full response text
+  (or stream chunks)
+* Extract token counts
+* Record response time
+* Validate response received
+* Check for completeness
+* Handle partial responses;
+
+:**21. Response Parsing**
+----
+* Extract response text
+* Parse citations/references
+* Identify inline citations
+  [1], [2], etc.
+* Extract structured data
+  (if requested)
+* Parse code blocks
+* Parse lists/tables
+* Validate response format
+* Check for truncation;
+
+:**22. Citation Validation**
+----
+* Verify citations exist
+* Map citations to sources:
+  - [1] → Chunk 1 → Document A
+  - [2] → Chunk 2 → Document B
+* Check citation accuracy
+* Validate all citations used
+* Identify missing citations
+* Cross-reference with context
+* Ensure proper attribution;
+
+:**23. Faithfulness Check**
+----
+* Compare response with context
+* Verify claims against sources
+* Detect hallucinations:
+  - Information not in context
+  - Contradictory statements
+  - Made-up facts
+* Check answer groundedness
+* Validate factual accuracy
+* Score faithfulness
+  (0-1 scale);
+
+if (Faithfulness\nScore > 0.8?) then (No)
+  :**Low Faithfulness Handler**
+  ----
+  * Flag response
+  * Add disclaimer
+  * Request regeneration
+  * Use more conservative prompt
+  * Log issue;
+  
+  note right
+    Options:
+    - Regenerate
+    - Add warning
+    - Return with disclaimer
+  end note
+else (Yes)
+endif
+
+:**24. Response Post-Processing**
+----
+* Format response:
+  - Apply markdown
+  - Format code blocks
+  - Structure paragraphs
+  - Add line breaks
+* Clean up artifacts
+* Apply text polish
+* Add section headers (if needed)
+* Format lists and tables
+* Apply styling;
+
+:**25. Source Link Attachment**
+----
+* Attach source metadata
+* Add clickable source links
+* Include document titles
+* Add page/section references
+* Format source list:
+  - "Sources:"
+  - [1] Document A - Page 5
+  - [2] Document B - Section 2.3
+* Add access URLs
+* Include timestamps
+* Add source previews (optional);
+
+:**26. Confidence Score Calculation**
+----
+* Calculate overall confidence:
+  - Retrieval score
+  - Similarity scores
+  - Faithfulness score
+  - Citation coverage
+  - Context quality
+* Combine multiple signals
+* Normalize score (0-100%)
+* Apply thresholds
+* Categorize confidence:
+  - High (> 80%)
+  - Medium (60-80%)
+  - Low (< 60%);
+
+:**27. Response Enrichment**
+----
+* Add metadata:
+  - Response time
+  - Token usage
+  - Number of sources
+  - Confidence score
+  - Model version
+* Add related queries (optional)
+* Suggest follow-ups
+* Add disclaimers (if needed)
+* Include feedback options;
+
+:**28. Content Moderation**
+----
+* Check response safety:
+  - No harmful content
+  - No PII leakage
+  - No offensive language
+  - Appropriate tone
+* Apply content policies
+* Filter sensitive information
+* Validate compliance
+* Check legal requirements;
+
+if (Content Safe?) then (No)
+  :Block Response;
+  :Return Safe Alternative;
+  stop
+else (Yes)
+endif
+
+:**29. Response Caching**
+----
+* Generate cache key:
+  - Hash of query
+  - Context fingerprint
+  - Model version
+* Store in cache:
+  - Response text
+  - Sources
+  - Metadata
+  - TTL: e.g., 1-24 hours
+* Update cache statistics
+* Manage cache size
+* Implement cache invalidation;
+
+:**30. Response Delivery**
+----
+* Format final response JSON:
+  - answer: response text
+  - sources: array of sources
+  - confidence: score (0-1)
+  - metadata: additional info
+* Send to user interface
+* Support streaming (if enabled)
+* Handle delivery errors
+* Confirm delivery
+* Update response status;
+
+:**User Receives Answer**
+----
+* Display answer to user
+* Show source citations
+* Provide source links
+* Display confidence (optional)
+* Enable follow-up questions
+* Show related queries
+* Provide feedback options;
+
+:**31. User Interaction Tracking**
+----
+* Track user actions:
+  - Read time
+  - Source clicks
+  - Copy/share actions
+  - Follow-up queries
+  - Navigation patterns
+* Monitor engagement
+* Detect user satisfaction signals
+* Track conversion events
+* Log interaction data;
+
+:**32. Feedback Collection**
+----
+* Show feedback options:
+  - 👍 Thumbs up
+  - 👎 Thumbs down
+  - ⭐ Star rating (1-5)
+  - 💬 Text feedback
+* Collect explicit feedback
+* Track implicit feedback:
+  - Query reformulation
+  - Immediate follow-up
+  - Source verification
+* Record feedback timestamp
+* Associate with query/response;
+
+:**33. Logging & Analytics**
+----
+* Log complete interaction:
+  - Query details
+  - Retrieved chunks
+  - Response generated
+  - Sources used
+  - Performance metrics
+  - User feedback
+* Store for analysis
+* Update metrics:
+  - Query volume
+  - Response time
+  - Success rate
+  - User satisfaction
+* Track costs:
+  - Embedding API calls
+  - Vector search queries
+  - LLM API tokens
+* Generate analytics events;
+
+:**34. Performance Metrics**
+----
+* Calculate metrics:
+  - End-to-end latency
+  - Retrieval time
+  - LLM generation time
+  - Token usage
+  - Cost per query
+  - Cache hit rate
+* Compare with SLAs
+* Track percentiles (p50, p95, p99)
+* Monitor error rates
+* Update dashboards;
+
+:**35. Monitoring & Alerts**
+----
+* Check for anomalies:
+  - High latency
+  - High error rate
+  - Low quality scores
+  - Unusual patterns
+* Trigger alerts if needed
+* Update health metrics
+* Track system status
+* Monitor resource usage;
+
+:**36. Continuous Learning**
+----
+* Store query-response pairs
+* Collect training data:
+  - Good responses (positive feedback)
+  - Bad responses (negative feedback)
+* Identify improvement areas:
+  - Missing information
+  - Poor retrievals
+  - Hallucinations
+* Queue for system optimization
+* Update knowledge base
+* Refine prompts
+* Improve retrieval;
+
+:End of Query Flow;
+
+stop
+
+legend right
+  |= **RAG Application Flow** |
+  | **Phase 1: Query Input** |
+  | - Query reception & validation |
+  | - Query understanding |
+  | - Context retrieval |
+  | **Phase 2: Query Processing** |
+  | - Contextualization |
+  | - Preprocessing |
+  | - Query expansion |
+  | - Embedding generation |
+  | **Phase 3: Retrieval** |
+  | - Metadata filtering |
+  | - Vector similarity search |
+  | - Initial results retrieval |
+  | - Reranking |
+  | **Phase 4: Context Preparation** |
+  | - Result deduplication |
+  | - Context assembly |
+  | - Length management |
+  | - Citation preparation |
+  | **Phase 5: Generation** |
+  | - Prompt construction |
+  | - LLM configuration |
+  | - API call |
+  | - Response reception |
+  | **Phase 6: Validation** |
+  | - Response parsing |
+  | - Citation validation |
+  | - Faithfulness check |
+  | - Content moderation |
+  | **Phase 7: Delivery** |
+  | - Post-processing |
+  | - Source linking |
+  | - Response enrichment |
+  | - Response delivery |
+  | **Phase 8: Feedback Loop** |
+  | - User interaction tracking |
+  | - Feedback collection |
+  | - Logging & analytics |
+  | - Monitoring |
+  | - Continuous learning |
+endlegend
+
+note right
+  **Runtime Pipeline:**
+  Query → Understanding →
+  Embedding → Vector Search →
+  Retrieve Context → Rerank →
+  Assemble → Prompt + Context →
+  LLM Generation → Validate →
+  Add Citations → Deliver →
+  Collect Feedback
+  
+  **Key Latency Components:**
+  * Query embedding: ~50-200ms
+  * Vector search: ~50-500ms
+  * Reranking: ~100-300ms
+  * LLM generation: ~1-5s
+  * Total: ~2-7 seconds
+  
+  **Cost Factors:**
+  * Embedding API calls
+  * Vector DB queries
+  * Reranking API (if used)
+  * LLM tokens (main cost)
+  
+  **Quality Metrics:**
+  * Retrieval accuracy
+  * Answer faithfulness
+  * Citation accuracy
+  * User satisfaction
+  * Response relevance
+end note
+
+@enduml
