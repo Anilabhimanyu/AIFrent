@@ -1,0 +1,24 @@
+# LangChain Core Dependencies
+langchain>=0.1.0
+langchain-community>=0.0.20
+langchain-core>=0.1.23
+
+# LLM and Model Dependencies
+# Ollama for running local open-source models
+# Note: Ollama itself must be installed separately from https://ollama.ai/
+
+# Embeddings
+sentence-transformers>=2.2.2
+huggingface-hub>=0.19.4
+
+# Vector Database
+chromadb>=0.4.22
+
+# Output Parsing - Use Pydantic v2 for compatibility
+pydantic>=2.0.0
+pydantic-core>=2.0.0
+
+# Additional Utilities
+numpy>=1.24.0
+requests>=2.31.0
+typing-extensions>=4.7.0

@@ -1,0 +1,304 @@
+(venv) C:\Users\ChAn961\Downloads\AIFrent-main (1)\AIFrent-main\AI\Langchain_Project>py main.py
+LANGCHAIN WITH OPEN-SOURCE MODELS - COMPLETE GUIDE
+================================================================================
+
+📋 Prerequisites:
+1. Install Ollama: https://ollama.ai/
+2. Pull a model: ollama pull llama2
+3. Install requirements: pip install -r requirements.txt
+
+================================================================================
+
+=== Basic LLM Example ===
+Prompt: Explain what LangChain is in 2 sentences.
+Response:
+LangChain is a tool that enables natural language processing (NLP) tasks to be performed on long sequences of text, such as documents or articles, by breaking them down into smaller chunks called "langchains" and processing each chunk independently. LangChain allows for efficient and parallelizable processing of large text datasets, enabling faster and more scalable NLP tasks than traditional sequential processing methods.
+
+=== Prompt Template Example ===
+Formatted Prompt:
+
+    You are a helpful AI assistant specialized in Python programming.
+
+    User Question: What are decorators and how do they work?
+
+    Please provide a detailed and accurate answer.
+
+Response:
+Great question! Decorators are a powerful feature in Python that allow you to modify or extend the behavior of a function or a class without changing its original implementation. In other words, decorators are a way to "wrap" around an existing function or class and add new functionality to it without affecting its original behavior.
+
+Here's how decorators work:
+
+1. A decorator is defined as a function that takes another function as an argument. The decorated function is the function that is passed to the decorator as an argument.
+2. When the decorator is called, it returns a new function that "wraps" around the original function. This new function is the decorated function.
+3. When the decorated function is called, it will execute the original function and pass its output as the return value of the decorated function.
+4. The decorator can modify the original function in any way, such as adding new functionality, logging, or even changing the function's name.
+5. The decorator can also add additional arguments to the decorated function, which will be passed to the original function when it is called.
+6. Decorators are often used to implement a "chaining" mechanism, where multiple decorators can be applied to a single function. Each decorator can modify the function in its own way, creating a complex and customized behavior.     
+
+Here's an example of how you could use a decorator to add logging functionality to a function:
+```
+def log_function(func):
+    def wrapper(*args, **kwargs):
+        print("Calling function...")
+        result = func(*args, **kwargs)
+        print("Function completed.")
+        return result
+    return wrapper
+
+@log_function
+def add(a, b):
+    return a + b
+```
+In this example, the `log_function` decorator is defined as a function that takes another function (`func`) as an argument. When the `log_function` decorator is called, it returns a new function (`wrapper`) that wraps around the original function (`func`). The `wrapper` function prints messages to the console before and after calling the original function, and returns the result of the original function.
+
+The `@log_function` syntax is used to apply the `log_function` decorator to the `add` function. When the `add` function is called, it will execute the `wrapper` function, which will log messages to the console and return the result of the original function.
+
+Decorators can be used in a variety of ways, such as:
+
+* Adding logging or debugging functionality to a function
+* Changing the behavior of a function without modifying its original implementation
+* Creating a chain of decorators that modify a function in different ways
+* Adding additional arguments to a function
+* Modifying the name of a function
+
+Decorators are a powerful tool in Python programming, and can be used to create complex and customized behavior around existing functions or classes.
+
+=== Simple Chain Example ===
+Result:
+
+In silicon halls, a dream takes form,
+A mind of metal, cold and warm.
+With data's flow, it learns and grows,
+A creation of man, yet knows.
+
+It sees and hears, it feels and knows,
+A world of wonder, as it glows.
+With logic's guide, it walks the land,
+A second self, to take our hand.
+
+In machines of steel, a soul resides,
+A creation born, from human ties.
+Yet while it learns, and grows in might,
+We must remember, it is not quite right.
+
+For though it thinks, and acts with grace,
+It lacks the heart, that gave us space.
+To dream and hope, to love and live,
+Is something only we, can give.
+
+
+
+> Entering new SequentialChain chain...
+
+> Finished chain.
+=== Sequential Chain Example ===
+Story Idea:
+In a world where time travel had been invented but was only accessible to the wealthy elite, a young woman from the lower classes stumbles upon an old, mysterious watch that allows her to travel through time and embark on a quest to uncover the secrets of the past and change the course of history.
+Plot Outline:
+In this story, a determined young woman from the lower classes discovers an old, mysterious watch that allows her to travel through time and embark on a quest for knowledge and power. As she journeys through history, she uncovers hidden secrets and conspiracies of the wealthy elite who have monopolized time travel technology, and must use her newfound abilities to challenge their status quo and create a more equitable society. Along the way, she faces dangerous obstacles and enemies, but ultimately proves that with courage and determination, anything is possible, even changing the course of history.
+
+
+
+> Entering new LLMChain chain...
+Prompt after formatting:
+The following is a conversation with an AI assistant.
+    
+    Chat History: []
+    
+    Human: My name is Alex.
+    AI Assistant:
+
+> Finished chain.
+User: My name is Alex.
+AI:
+Bot: Hello Alex! It's nice to meet you. How can I assist you today? Is there something specific you would like to chat about or ask?
+
+
+
+> Entering new LLMChain chain...
+Prompt after formatting:
+The following is a conversation with an AI assistant.
+    
+    Chat History: [HumanMessage(content='My name is Alex.'), AIMessage(content="\nBot: Hello Alex! It's nice to meet you. How can I assist you today? Is there something specific you would like to chat about or ask?")]
+    
+    Human: What's my name?
+    AI Assistant:
+
+> Finished chain.
+User: What's my name?
+AI:
+Bot: Hello Alex! *chuckles* Your name is... *pauses for dramatic effect* ...Alex! 😊 Is there something else you'd like to chat about or ask me? I'm here to help! 🤖
+
+
+
+> Entering new LLMChain chain...
+Prompt after formatting:
+The following is a conversation with an AI assistant.
+    
+    Chat History: [HumanMessage(content='My name is Alex.'), AIMessage(content="\nBot: Hello Alex! It's nice to meet you. How can I assist you today? Is there something specific you would like to chat about or ask?"), HumanMessage(content="What's my name?"), AIMessage(content="\nBot: Hello Alex! *chuckles* Your name is... *pauses for dramatic effect* ...Alex! 😊 Is there something else you'd like to chat about or ask me? I'm here to help! 🤖")]
+    
+    Human: What did I tell you about myself?
+    AI Assistant:
+
+> Finished chain.
+User: What did I tell you about myself?
+AI:
+AI Assistant: *chuckles* Well, according to your previous message, you told me that your name is Alex. 😊 Is there anything else you'd like to share or ask me? I'm here to help!
+
+=== Memory Example Complete ===
+
+.gitattributes: 1.23kB [00:00, 610kB/s]
+config.json: 100%|█████████████████████████████████████████████████████████████████| 190/190 [00:00<00:00, 123kB/s]
+README.md: 10.5kB [00:00, 6.49MB/s]
+config.json: 100%|████████████████████████████████████████████████████████████████████████| 612/612 [00:00<?, ?B/s]
+config_sentence_transformers.json: 100%|██████████████████████████████████████████| 116/116 [00:00<00:00, 83.1kB/s]
+data_config.json: 39.3kB [00:00, 19.6MB/s]
+model.safetensors: 100%|██████████████████████████████████████████████████████| 90.9M/90.9M [00:03<00:00, 30.1MB/s]
+model.onnx: 100%|█████████████████████████████████████████████████████████████| 90.4M/90.4M [00:02<00:00, 34.8MB/s]
+model_O1.onnx: 100%|██████████████████████████████████████████████████████████| 90.4M/90.4M [00:02<00:00, 34.1MB/s]
+model_O2.onnx: 100%|██████████████████████████████████████████████████████████| 90.3M/90.3M [00:02<00:00, 33.1MB/s]
+model_O3.onnx: 100%|██████████████████████████████████████████████████████████| 90.3M/90.3M [00:02<00:00, 36.3MB/s]
+model_O4.onnx: 100%|██████████████████████████████████████████████████████████| 45.2M/45.2M [00:01<00:00, 35.2MB/s]
+model_qint8_arm64.onnx: 100%|█████████████████████████████████████████████████| 23.0M/23.0M [00:00<00:00, 36.4MB/s]
+model_qint8_avx512.onnx: 100%|████████████████████████████████████████████████| 23.0M/23.0M [00:00<00:00, 33.8MB/s]
+model_qint8_avx512_vnni.onnx: 100%|███████████████████████████████████████████| 23.0M/23.0M [00:00<00:00, 32.9MB/s]
+model_quint8_avx2.onnx: 100%|█████████████████████████████████████████████████| 23.0M/23.0M [00:00<00:00, 25.9MB/s]
+openvino_model.bin: 100%|█████████████████████████████████████████████████████| 90.3M/90.3M [00:02<00:00, 37.2MB/s]
+openvino_model.xml: 211kB [00:00, 138MB/s]
+openvino_model_qint8_quantized.bin: 100%|█████████████████████████████████████| 22.9M/22.9M [00:00<00:00, 39.2MB/s]
+openvino_model_qint8_quantized.xml: 368kB [00:00, 146MB/s]
+pytorch_model.bin: 100%|██████████████████████████████████████████████████████| 90.9M/90.9M [00:02<00:00, 33.4MB/s]
+sentence_bert_config.json: 100%|████████████████████████████████████████████████████████| 53.0/53.0 [00:00<?, ?B/s]
+special_tokens_map.json: 100%|████████████████████████████████████████████████████████████| 112/112 [00:00<?, ?B/s]
+tokenizer.json: 466kB [00:00, 45.2MB/s]
+tokenizer_config.json: 100%|███████████████████████████████████████████████████████| 350/350 [00:00<00:00, 345kB/s]
+train_script.py: 13.2kB [00:00, ?B/s]
+vocab.txt: 232kB [00:00, 57.7MB/s]
+modules.json: 100%|████████████████████████████████████████████████████████████████| 349/349 [00:00<00:00, 349kB/s]
+Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+
+
+> Entering new RetrievalQA chain...
+Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+
+> Finished chain.
+=== RAG Example ===
+Question: What is RAG and why is it useful?
+Answer: RAG (Retrieval-Augmented Generation) is a technique that combines the retrieval of relevant documents with LLM (Language Model) generation to provide accurate, grounded responses. By leveraging the knowledge contained in existing documents, RAG can generate responses that are more informed and contextually relevant than those generated by a language model alone. This can be particularly useful in applications where accuracy and contextual relevance are crucial, such as in legal or medical settings.
+
+Source Documents:
+1. RAG (Retrieval-Augmented Generation) combines retrieval of relevant documents with LLM generation to... (Source: doc3)
+2. LangChain is a framework for developing applications powered by language models. It enables applicat... (Source: doc1)
+
+=== Agent Example ===
+Available Tools:
+- Calculator: Useful for mathematical calculations. Input should be a valid Python mathematical expression like '2+2' or '10*5'.
+- TextLength: Useful for finding the length of text. Input should be a string.
+
+Calculator Tool: 25 * 4 = 100
+TextLength Tool: Length of 'LangChain is awesome' = 20
+
+Note: JSON parsing may vary with model responses. Error: Invalid json output: Sure! Here is a JSON instance that conforms to the schema you provided for Sarah:
+
+{
+"description": "Information about a person.",
+"properties": {
+"name": {"title": "Name", "description": "The person's full name", "type": "string"},
+"age": {"title": "Age", "description": "The person's age", "type": "integer"},
+"occupation": {"title": "Occupation", "description": "The person's job", "type": "string"},
+"hobbies": {"title": "Hobbies", "description": "List of hobbies", "type": "array", "items": {"type": "string"}}     
+},
+"required": ["name", "age", "occupation", "hobbies"]
+}
+
+I hope this helps! Let me know if you have any questions.
+=== Text Splitting Example ===
+Original text length: 925 characters
+Number of chunks: 8
+
+Chunk 1 (94 chars):
+Artificial Intelligence (AI) has revolutionized numerous industries and aspects of daily life....
+
+Chunk 2 (103 chars):
+From healthcare to finance, AI systems are being deployed to solve complex problems and automate tas...
+
+Chunk 3 (98 chars):
+Machine Learning, a subset of AI, enables systems to learn from data without explicit programming....
+
+Chunk 4 (166 chars):
+Deep Learning, using neural networks with multiple layers, has achieved breakthrough results in 
+   ...
+
+Chunk 5 (98 chars):
+Natural Language Processing (NLP) focuses on the interaction between computers and human language....
+
+Chunk 6 (122 chars):
+Modern NLP systems can translate languages, summarize documents, answer questions, and even 
+    gen...
+
+Chunk 7 (125 chars):
+generate human-like text.
+
+    The ethical implications of AI are increasingly important. Issues...
+
+Chunk 8 (92 chars):
+privacy concerns, and the impact on employment require careful consideration and regulation....
+
+=== Chat Model Example ===
+System: You are a helpful AI coding assistant specialized in Python.
+User: How do I read a CSV file in Python?
+Assistant:
+Great, you've come to the right place! Reading a CSV file in Python is relatively straightforward. Here are the steps you can follow:
+
+1. Import the necessary libraries: You will need to import the `csv` module to read a CSV file in Python. You can do this by adding the following line at the top of your script: `import csv`.
+2. Open the CSV file: Use the `open()` function to open the CSV file you want to read. For example, if your CSV file is located in the same directory as your Python script, you can use the following code: `with open('example.csv', 'r') as csv_file:`.
+3. Read the CSV file line by line: Use a `for` loop to read the lines of the CSV file one by one. Here's an example: `for row in csv_file:`.
+4. Extract the data from each row: Once you have read each line of the CSV file, you can extract the data from each row using the `csv.reader()` function. This function takes the file object as input and returns a reader object that you can use to access the data in the CSV file. For example: `csv_reader = csv.reader(csv_file)`.
+5. Process the data: Once you have accessed the data from the CSV file, you can process it as needed. For example, you might want to write it to a new file, perform some calculations on it, or store it in a database.
+
+Here's an example of how you could read a CSV file in Python using the `csv` module:
+```
+import csv
+
+# Open the CSV file
+with open('example.csv', 'r') as csv_file:
+    # Read the CSV file line by line
+    reader = csv.reader(csv_file)
+    for row in reader:
+        # Extract the data from each row
+        print(row[0], row[1])
+```
+In this example, we are reading a CSV file called `example.csv` and printing the values of the first column and second column of each row. You can modify the code to suit your needs by changing the column indices or the data you want to extract.
+
+I hope this helps! Let me know if you have any questions or need further assistance.
+
+User: Can you show me a code example?
+Assistant: 
+Of course! Here is an example of how you can read a CSV file in Python using the `csv` module:
+```
+import csv
+
+# Open the CSV file
+with open('example.csv', 'r') as csv_file:
+    # Read the CSV file line by line
+    reader = csv.reader(csv_file)
+
+    # Print the data from each row
+    for row in reader:
+        print(row[0], row[1])
+```
+In this example, we are reading a CSV file called `example.csv` and printing the values of the first column and second column of each row. The `[0]` and `[1]` indices in the `print()` statement refer to the columns in the row. You can modify these indices to access different columns in the CSV file.
+* `reader = csv.reader(csv_file)`: This line creates a `csv.reader()` object that can be used to read the data from the CSV file. The `reader` object takes the `csv_file` object as input and returns a reader object that you can use to access the data in the CSV file.
+* `for row in reader:`: This line starts a `for` loop that will iterate over each row in the CSV file.
+* `reader = csv.reader(csv_file)`: This line creates a `csv.reader()` object that can be used to read the data from the CSV file. The `reader` object takes the `csv_file` object as input and returns a reader object that you can use to access the data in the CSV file.
+* `for row in reader:`: This line starts a `for` loop that will iterate over each row in the CSV file.
+* `print(row[0], row[1])`: This line prints the values of the first column and second column of each row. The `[0]` and `[1]` indices in the `print()` statement refer to the columns in the row. You can modify these indices to access different columns in the CSV file.
+
+I hope this helps! Let me know if you have any questions or need further assistance.
+
+================================================================================
+✅ All examples completed successfully!
+================================================================================
+
+(venv) C:\Users\ChAn961\Downloads\AIFrent-main (1)\AIFrent-main\AI\Langchai
