@@ -1,0 +1,2 @@
+1. When I run py main.py, getting ❌ Error: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate/ (Caused by NewConnectionError("HTTPConnection(host='localhost', port=11434): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it")), why?
+sol: You're not running ollama server in local, FYI, OLLAMA is a tool or 
