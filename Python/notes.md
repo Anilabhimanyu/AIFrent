@@ -180,3 +180,49 @@ Runtime errors   → try-except
 
 **if-else** = "Is this input valid?"  
 **try-except** = "What if this operation fails?"
+
+# Activity set3: Inheritance ( Add Manager Role)
+**Inheritance** is an OOP concept where a child class (subclass) inherits attributes and methods from a parent class (superclass).
+
+## Theory
+
+### **Core Idea**
+- Creates **"is-a" relationship**: Manager **is-a** Employee
+- Child class **extends** parent class functionality
+- Promotes **code reuse** and **hierarchy**
+
+### **Key Components**
+```
+Parent Class (Base/Superclass)
+    ↑
+Child Class (Derived/Subclass)
+```
+
+### **How It Works**
+1. **Automatic Inheritance**: Child gets ALL parent attributes/methods
+2. **`super()`**: Explicitly calls parent methods
+3. **Method Override**: Child can redefine parent methods
+4. **New Features**: Child adds its own attributes/methods
+
+### **Syntax**
+```python
+class ChildClass(ParentClass):  # Inheritance happens here
+    def __init__(self, ...):
+        super().__init__(...)    # Call parent constructor
+        self.new_attribute = ... # Child-specific
+```
+
+### **Benefits**
+- **DRY Principle**: Don't Repeat Yourself
+- **Polymorphism**: Same interface, different behaviors
+- **Extensibility**: Easy to add specialized classes
+
+### **Types**
+- **Single**: `class B(A)`
+- **Multiple**: `class C(A, B)` (Python supports)
+- **Multilevel**: `D → C → B → A`
+- **Hierarchical**: Multiple children from one parent
+
+**Purpose**: Build specialized classes from general ones without duplicating code.
+
+

@@ -46,6 +46,24 @@ emp3=Employee(3,"linga","IT",7000)
 emp4=Employee(4,"sudheer","HR",1500)
 emp5=Employee(5,"rahul","Finance",2000)
 
-print(emp1)
-print(repr(emp1))
+class Manager(Employee):
+    def __init__(self, emp_id, name, department, salary, team_size):
+        super().__init__(emp_id, name, department, salary)
+        self.team_size = team_size
+    def calculate_bonus(self):
+        """Board bonus: 20% of salary per team member."""
+        base_bonus = self.salary*0.10*self.team_size
+        return base_bonus
+    def get_details(self):
+        return f" emp_id: {self.emp_id}, name: {self.name}, department: {self.department}, salary: {self.salary}, team_size: {self.team_size}, bonus: {self.calculate_bonus()}"
 
+manager1=Manager("Amar", 5,"IT", 1000000, 12)
+manager2 = Manager("Ramesh", 7, "IT", 900000, 7)
+
+managers=[manager1, manager2]
+for manager in managers:
+    print(manager.get_details())
+    
+    
+
+    
