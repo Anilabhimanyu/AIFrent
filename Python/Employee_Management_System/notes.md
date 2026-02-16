@@ -279,3 +279,105 @@ class Department:
 ```
 
 # Activity set5: Magic Methods & Comparision
+**Question: What are Magic Methods in Python?**
+
+### ✅ Magic Methods (also called Dunder Methods)
+
+Magic methods are **special predefined methods in Python** that start and end with double underscores:
+
+👉 `__method__`
+
+That’s why they are called **dunder** methods (**double underscore**).
+
+Example:
+
+* `__init__`
+* `__str__`
+* `__lt__`
+* `__eq__`
+
+---
+
+## ✅ Why are they called "Magic"?
+
+Because Python **automatically calls them internally** when you use operators or built-in functions.
+
+You don’t call them directly most of the time.
+
+---
+
+## ✅ Example 1: `__init__` (Object creation)
+
+```python
+emp = Employee()
+```
+
+Python internally calls:
+
+```python
+Employee.__init__(emp)
+```
+
+---
+
+## ✅ Example 2: `__str__` (print object)
+
+```python
+print(emp)
+```
+
+Python internally calls:
+
+```python
+emp.__str__()
+```
+
+So you control what gets printed.
+
+---
+
+## ✅ Example 3: `__lt__` (less than `<`)
+
+```python
+emp1 < emp2
+```
+
+Python internally calls:
+
+```python
+emp1.__lt__(emp2)
+```
+
+So you decide what `<` means (salary comparison, age comparison, etc.)
+
+---
+
+## ✅ Example 4: `__eq__` (equal `==`)
+
+```python
+emp1 == emp2
+```
+
+Python internally calls:
+
+```python
+emp1.__eq__(emp2)
+```
+
+---
+
+# 🔥 Simple Definition
+
+### Magic methods let you **customize the behavior of Python operators and built-in functions** for your class.
+
+So your objects can behave like built-in types.
+
+---
+
+## ⭐ Real-Life Analogy
+
+Python says:
+
+> "If you define these special methods, I’ll automatically use them when needed."
+
+That’s the magic.

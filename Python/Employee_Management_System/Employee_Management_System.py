@@ -39,7 +39,7 @@ class Employee:
         else:
             print("Invalid Percentage")
 
-    # ------------ Composition Methods ------------------
+    # ------------------ Composition Methods ------------------
     def assign_project(self, project):
         self.project = project
         return f" Project {project.project_id} : {project.project_name} : {project.client_name} is now assigned to user {self.name}"
@@ -54,6 +54,20 @@ class Employee:
     
     def __repr__(self):
         return f" object of employee"
+
+    # ------------------ Magic Methods ------------------
+    def __eq__(self, other):
+        return self.__salary == other.salary
+
+    def __lt__(self, other):
+        if not isinstance(other, Employee):
+            return NotImplemented
+        return self.__salary < other.salary
+
+    def __gt__(self, other):
+        if not isinstance(other, Employee):
+            return NotImplemented
+        return self.__salary > other.salary
 
 emp1=Employee(1,"anil","IT",1000)
 emp2=Employee(2,"sunil","IT",4000)
@@ -93,3 +107,16 @@ emp2.assign_project(project2)
 emps = [emp1, emp2, emp3]
 for emp in emps:
     print(emp.get_project_details())
+
+
+def sort_employees_by_salary(employees):
+    return sorted(employees) # uses __lt__ internally
+
+employees = [emp1, emp2, emp3, emp4, emp5]
+
+sorted_emps = sort_employees_by_salary(employees)
+
+for emp in sorted_emps:
+    print(emp.name, emp.salary)
+
+print(emp1<emp2)
