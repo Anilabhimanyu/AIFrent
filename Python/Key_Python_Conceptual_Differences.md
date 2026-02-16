@@ -71,5 +71,71 @@ print(new_nums)  # [2, 5, 9]
 **A:** Implementing abstract methods in child class is mandatory, not having `__init__`.
 
 ======================================
+**Q: If `Employee.__lt__` compares salary, how can I sort tasks by deadline?**
+**A:** `Employee.__lt__` is only used when sorting **Employee objects**. For tasks, Python uses `Task.__lt__` (if defined) or you can use `sorted(tasks, key=lambda x: x.deadline)` to sort by deadline.
 
+======================================
+**Q: If `__str__` is there, why does printing a list still show `<Task object at ...>`?**
 
+**A:** Because when you print a **list**, Python does **not** use `__str__()` of objects.
+It uses `__repr__()` of each object inside the list.
+
+---
+
+### Example
+
+```python
+print(task1)        # uses __str__
+print([task1])      # uses __repr__
+```
+
+So:
+
+* `print(task1)` → calls `task1.__str__()`
+* `print([task1])` → calls `task1.__repr__()`
+
+---
+
+**Q: Then what happens if `__repr__` is not defined?**
+**A:** Python uses default repr:
+
+```
+<__main__.Task object at 0x...>
+```
+
+---
+
+✅ That’s why for clean list printing, define `__repr__` also.
+
+===================================================
+
+**Q: If `__repr__` is not there, will Python automatically use `__str__`?**
+**A:** ❌ No, not always.
+
+### ✅ Correct rule:
+
+* If you do `print(obj)` → Python uses `__str__()`
+* If `__str__` is missing → then Python falls back to `__repr__()`
+
+So fallback is:
+
+👉 **`__str__` missing → use `__repr__`**
+
+---
+
+**Q: If `__repr__` is missing, will it use `__str__`?**
+**A:** ❌ No. Python will use default internal repr like:
+
+```
+<__main__.Task object at 0x...>
+```
+
+---
+
+### ✅ Final Conclusion
+
+✔ `print(obj)` prefers `__str__`
+✔ If no `__str__`, then uses `__repr__`
+❌ If no `__repr__`, it does NOT automatically use `__str__` (especially inside list printing)
+
+============================================

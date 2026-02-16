@@ -1,5 +1,4 @@
-from pygments.lexers.textfmts import TodotxtLexer
-
+from datetime import datetime
 
 class Employee:
     
@@ -14,6 +13,7 @@ class Employee:
 
         # Composition: Employee HAS-A project
         self.project = None
+        self.tasks = []
         Employee.total_employees+=1
         
     @property
@@ -69,6 +69,21 @@ class Employee:
             return NotImplemented
         return self.__salary > other.salary
 
+    # Object Relationships
+    def assign_task(self, task):
+        self.tasks.append(task)
+        return f" Task {task.task_id} is assigned to {self.name}"
+
+    def list_tasks(self):
+        return self.tasks
+
+    def get_pending_tasks(self):
+        return list(filter(lambda task: task.status != "Done", self.tasks))
+
+    def sort_tasks_by_deadline(self):
+        return sorted(self.tasks)
+
+
 emp1=Employee(1,"anil","IT",1000)
 emp2=Employee(2,"sunil","IT",4000)
 emp3=Employee(3,"linga","IT",7000)
@@ -120,3 +135,28 @@ for emp in sorted_emps:
     print(emp.name, emp.salary)
 
 print(emp1<emp2)
+
+class Task:
+    def __init__(self, task_id, description, status, deadline):
+        self.task_id = task_id
+        self.description = description
+        self.status = status
+        self.deadline = datetime.strptime(deadline, "%d-%m-%Y %H:%M:%S")
+
+    def __repr__(self):
+        return f"{self.task_id}, {self.description}, {self.status}, {self.deadline}"
+
+    def __lt__(self, other):
+        if not isinstance(other, Task):
+            raise NotImplementedError
+        return self.deadline < other.deadline
+
+task1 = Task(1, "complete automation", "Not Started", "16-02-2026 23:00:00")
+task2 = Task(2, "complete QA", "Pending", "18-02-2026 23:00:00")
+emp1.assign_task(task1)
+emp1.assign_task(task2)
+emp2.assign_task(task2)
+
+print(emp1.get_project_details())
+print(emp1.get_pending_tasks())
+print(emp1.sort_tasks_by_deadline())
