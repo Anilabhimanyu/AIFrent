@@ -52,3 +52,24 @@ print(new_nums)  # [2, 5, 9]
 
 ======================================
 
+**Q: What is the difference between normal inheritance override and abstract class override?**
+
+**A:**
+
+* In **normal inheritance**, overriding a method is **optional** (child may or may not override).
+* In **abstract class (ABC)**, overriding abstract methods is **mandatory** (child must override, otherwise object cannot be created).
+
+======================================
+
+**Q: Should an abstract class have `__init__` parameters?**
+**A:** Not compulsory. Abstract class *may or may not* have `__init__`.
+
+**Q: Should a child class implement all abstract methods?**
+**A:** Yes. Child class *must* implement all abstract methods, otherwise object cannot be created.
+
+**Q: What is mandatory in abstract class concept?**
+**A:** Implementing abstract methods in child class is mandatory, not having `__init__`.
+
+======================================
+
+
