@@ -139,3 +139,75 @@ So fallback is:
 ❌ If no `__repr__`, it does NOT automatically use `__str__` (especially inside list printing)
 
 ============================================
+## Composition + Dependency Injection (DI)
+**Composition provides the structure. DI provides the flexibility.**
+## How They Work Together
+### **Composition** = Object Structure
+```
+class Car:                    # Composition
+    def __init__(self, engine):  
+        self.engine = engine   # HAS-A relationship
+```
+### **Dependency Injection** = Object Wiring
+```
+# WITHOUT DI (tight coupling)
+class Car:
+    def __init__(self):
+        self.engine = Engine()  # Car KNOWS how to create Engine ❌
+
+# WITH DI (loose coupling)  
+class Car:
+    def __init__(self, engine):  # Car receives dependency ✅
+        self.engine = engine
+```
+## Complete Example: HR System
+```python
+# Dependencies (composed parts)
+class Database:
+    def save_employee(self, emp):
+        print(f"Saved {emp['name']} to DB")
+
+class EmailService:
+    def send_notification(self, emp):
+        print(f"Email sent to {emp['name']}")
+
+# Main class using composition + DI
+class HRSystem:
+    def __init__(self, db: Database, email: EmailService):  # DI via constructor
+        self.db = db              # Composition (has-a)
+        self.email = email        # Composition (has-a)
+    
+    def onboard_employee(self, emp):
+        self.db.save_employee(emp)
+        self.email.send_notification(emp)
+
+# Usage - Easy to swap dependencies
+db = Database()
+email = EmailService()
+hr = HRSystem(db, email)  # Inject dependencies
+
+# For testing, inject mocks
+mock_db = MockDatabase()
+test_hr = HRSystem(mock_db, email)
+```
+## Key Benefits
+| Without DI | With DI + Composition |
+|------------|----------------------|
+| `Car` creates `Engine` | `Car` receives `Engine` |
+| Hard to test | Easy unit testing |
+| Tight coupling | Loose coupling |
+| Hard to swap | Dependencies swappable |
+## Real-World Pattern
+```
+1. Define interfaces/protocols
+2. Use composition (self.service = service)
+3. Inject via constructor
+4. Test with mock dependencies
+```
+
+**Composition** = **"What parts do I need?"**  
+**DI** = **"Someone else provides those parts"**
+
+**Result**: Flexible, testable, maintainable code [stackoverflow](https://stackoverflow.com/questions/11945182/how-does-dependency-injection-aid-object-composition)
+=======================================
+

@@ -84,11 +84,12 @@ class Employee:
         return sorted(self.tasks)
 
 
-emp1=Employee(1,"anil","IT",1000)
-emp2=Employee(2,"sunil","IT",4000)
-emp3=Employee(3,"linga","IT",7000)
-emp4=Employee(4,"sudheer","HR",1500)
-emp5=Employee(5,"rahul","Finance",2000)
+
+emp1=Employee(1,"anil",None,1000)
+emp2=Employee(2,"sunil",None,4000)
+emp3=Employee(3,"linga",None,7000)
+emp4=Employee(4,"sudheer",None,1500)
+emp5=Employee(5,"rahul",None,2000)
 
 class Manager(Employee):
     def __init__(self, emp_id, name, department, salary, team_size):
@@ -160,3 +161,32 @@ emp2.assign_task(task2)
 print(emp1.get_project_details())
 print(emp1.get_pending_tasks())
 print(emp1.sort_tasks_by_deadline())
+
+
+class Department:
+    def __init__(self, name, manager):
+        self.name = name
+        self.manager = manager
+        self.employees = []
+
+    def __repr__(self):
+        return f"| {self.name}, {self.manager}, {self.employees} |"
+
+    def add_employee(self,employee):
+        employee.department = self
+        self.employees.append(employee)
+
+    def get_all_employees(self):
+        return self.employees
+
+    def department_summary(self):
+        return f" name: {self.name}, manager: {self.manager}, total employees: {self.employees.count()}"
+
+IT = Department("IT", manager1)
+IT.add_employee(emp1)
+print(emp1.get_details())
+
+
+
+
+
