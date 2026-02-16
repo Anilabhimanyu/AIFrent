@@ -225,4 +225,57 @@ class ChildClass(ParentClass):  # Inheritance happens here
 
 **Purpose**: Build specialized classes from general ones without duplicating code.
 
+# Activity set4: Composition + Project System
 
+## Relationship Decision Guide
+
+### **Inheritance** (`is-a`)
+**When**: True hierarchical "is-a" relationship
+```
+Car is-a Vehicle ✓ Inheritance
+Manager is-a Employee ✓ Inheritance
+```
+**Use**: Natural type hierarchy, polymorphism needed
+
+### **Composition** (`has-a`, strong ownership)
+**When**: Whole-part relationship, part can't exist without whole
+```
+House has-a Room (room dies if house destroyed) ✓ Composition
+Car has-a Engine (engine belongs exclusively to car) ✓ Composition
+```
+**Syntax**: 
+```python
+class Car:
+    def __init__(self):
+        self.engine = Engine()  # Composition
+```
+
+### **Aggregation** (`has-a`, weak ownership) 
+**When**: Whole-part relationship, part can exist independently
+```
+Department has-a Employee (employee can move to another dept) ✓ Aggregation
+University has-a Student (student can transfer) ✓ Aggregation
+```
+**Syntax**:
+```python
+class Department:
+    def __init__(self):
+        self.employees = []  # Aggregation (external reference)
+```
+
+## Quick Decision Matrix
+
+| Relationship | Question | Example |
+|--------------|----------|---------|
+| **Inheritance** | Is it truly the same type? | `Dog is-a Animal` |
+| **Composition** | Does part die without whole? | `Wheel belongs to Car` |
+| **Aggregation** | Can part exist separately? | `Professor works for University` |
+
+## Golden Rule
+```
+"is-a" → Inheritance (rare)
+"has-a" → Composition/Aggregation (common)
+"Favor composition over inheritance"
+```
+
+# Activity set5: Magic Methods & Comparision

@@ -1,3 +1,6 @@
+from pygments.lexers.textfmts import TodotxtLexer
+
+
 class Employee:
     
     company_name = "ABC Corp"
@@ -8,6 +11,9 @@ class Employee:
         self.name = name
         self.department = department
         self.__salary = salary # private attribute
+
+        # Composition: Employee HAS-A project
+        self.project = None
         Employee.total_employees+=1
         
     @property
@@ -32,7 +38,16 @@ class Employee:
             print(f" Salary is increased by {percent}")
         else:
             print("Invalid Percentage")
-            
+
+    # ------------ Composition Methods ------------------
+    def assign_project(self, project):
+        self.project = project
+        return f" Project {project.project_id} : {project.project_name} : {project.client_name} is now assigned to user {self.name}"
+
+    def get_project_details(self):
+        if self.project is None:
+            return f" Emp {self.name} don't have any projects assigned currently "
+        return f" Emp Name: {self.name}, Project: {self.project.project_name}, Client: {self.project.client_name}"
 
     def __str__(self):
         return f"[Employee] {self.name} | ID: {self.emp_id} | Dept: {self.department} | Salary: {self.salary}" # if str is not there and
@@ -64,6 +79,17 @@ managers=[manager1, manager2]
 for manager in managers:
     print(manager.get_details())
     
-    
+class Project:
+    def __init__(self, project_id, project_name, client_name):
+        self.project_id = project_id
+        self.project_name = project_name
+        self.client_name = client_name
 
-    
+project1 = Project(1, "Edufrent", "CM")
+project2 = Project(2, "Agrifrent", "CVR")
+
+emp1.assign_project(project1)
+emp2.assign_project(project2)
+emps = [emp1, emp2, emp3]
+for emp in emps:
+    print(emp.get_project_details())
